@@ -1,0 +1,524 @@
+---
+title: "Introducción a R para el análisis de datos sociales: Clase 2"
+author: "Laboratorio de Datos - El Ateneo"
+date: "17/09/2022"
+output: 
+  rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: false
+    code_folding: "show"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+clase 1?? y agregar operadores? asignación, lógicos, relacionales
+paquetes y librerías
+
+
+# Objetos
+
+En la clase de hoy vamos a trabajar con los principales objetos de R (en R todo es un objeto).
+
+Antes de avanzar, recordemos que cuando R se ejecuta nos devuelve un valor, esta salida podemos chequearla en la consola. 
+
+Por ejemplo, si lo usamos cual calculadora:
+
+```{r}
+
+10 + 1
+
+```
+
+Recuerden que podemos generar un chunk de código con `ctrl + alt + i`.
+
+La asignación de objetos se realiza mediante el operador  `<-` `(alt + -)`; o con el `=`.
+Por ejemplo, creemos el objeto edad y asignemoslé un valor: 
+
+```{r}
+edad  <- 27
+edad
+
+edad_dos = 40
+edad_dos
+```
+
+En el Enviroment vamos a ver que el objeto está creado. También podemos consultar cuál es el valor del objeto llamandolo (selecciono y presiono `ctrl + enter`). 
+
+Ahora sí, pasemos a los objetos. 
+
+## Tipos
+
+En R, los objetos pueden ser de distinto tipo: 
+
+## Numéricos enteros (integer):
+
+```{r}
+
+edad_entera <- 67
+edad_entera
+
+```
+
+## Numéricos con decimal (numeric, float, doble):
+
+```{r}
+edad_exacta <- 67.6
+edad_exacta
+```
+
+## Cadenas de texto (Character):
+
+```{r}
+provincia <-  "Buenos Aires"
+provincia
+
+```
+
+Observen que este tipo de datos deben incluirse entre comillas. 
+
+## Factor (factor): 
+
+```{r}
+nivel_educativo <- as.factor(c("Inicial", "Primario", "secundario", "Terciario", "Universitario"))
+nivel_educativo
+```
+Es un tipo de objeto específico de R que permite describir un dato numérico mediante una etiqueta (como etiquetas de SPSS). 
+
+## Lógicos (logical):
+
+```{r}
+persona_identificada <- TRUE
+persona_identificada
+
+```
+
+Además, existen objetos con valores perdidos o nulos:
+
+```{r}
+perdidos <- NA
+perdidos
+nulos <- NULL
+nulos
+
+```
+
+Podemos chequear el tipo o la clase del objeto: 
+
+```{r}
+class(nulos)
+class(provincia)
+```
+
+Los objetos en R pueden ser *coercionados*, forzados a ser de un tipo:
+
+```{r}
+provincia <- as.factor(provincia)
+class(provincia)
+
+edad <- as.character(edad)
+class(edad)
+
+```
+
+clase 2??
+
+# Estructuras de datos
+
+Las estructuras de datos son **objetos que contienen datos**. Al igual que los objetos, existen de distintos tipos: 
+
+## Vectores
+
+Son colecciones de uno o más datos. Son del mismo tipo que los datos que contienen:
+
+```{r}
+#único elemento
+pais <- "Peru"
+
+#Varios elementos
+paises <- c("Argentina", "Brasil", "Uruguay")
+
+class(paises)
+
+#puedo chequear si se trata de un vector
+is.vector(paises)
+
+#podemos incluir un vector, dentro de otro vector
+paises <- c(paises, pais)
+paises
+
+```
+
+## Matriz 
+
+Es un vector de más dimensiones (largo y alto): 
+
+```{r}
+#Matriz numérica sin dimensiones especificadas: 
+Anios <- matrix(2001:2009)
+Anios
+
+#Matriz con tres filas y tres columnas: 
+Trienios <- matrix(2001:2009, nrow = 3, ncol = 3)
+Trienios
+
+```
+
+Se pueden crear matrices uniendo vectores, con `cbind()` y `rbind()`:
+
+```{r}
+primer_cuatrimestre <- 1:4
+segundo_cuatrimestre <- 5:8
+
+#Cada vector es una columna
+encuestas <- cbind(primer_cuatrimestre, segundo_cuatrimestre)
+encuestas
+
+#Cada vector es una fila
+cantidades <- rbind(primer_cuatrimestre, segundo_cuatrimestre)
+cantidades
+
+```
+
+## Listas
+
+Contienen objetos que pueden ser de cualquier clase: números, vectores, matrices, funciones, data.frames, incluso otras listas. 
+
+```{r}
+
+listado <- list(1:10,"Lunes", pi, list(c(-1, -2)))
+listado
+
+#Cada elemento de la lista puede ser nombrado
+names(listado) <- c("numeros", "vector", "función", "lista")
+listado
+
+```
+
+## Dataframes
+
+Son estructuras rectangulares que pueden contener datos de distinto tipo. Al igual que la matriz, están compuestos por vectores. 
+
+Poseen el formato de una tabla:  *cada fila corresponde a un caso, sujeto, observación* y *cada columna a una variable, dimensión o atributo*.
+
+```{r}
+#Vectores
+nombre <- c("Zoe", "Ana", "Lucas", "Mariano")
+apellido <- c("Sanchez", "Garcia", "Fernandez", "Gonzalez")
+fecha_nacimiento <- c("1986-06-14", "1994-05-07", "1958-12-25", "1983-09-19")
+idpersona <- c(1889, 55262, 77893, 62294)
+
+#DF
+registro <- data.frame(nombre, apellido, fecha_nacimiento, idpersona)
+registro
+
+```
+
+# Acceder a los datos
+
+Antes de extraer datos, es posible explorar los distintos objetos y acceder a ellos. 
+
+Para conocer la estructura del objeto podemos usar `str()`:
+
+```{r}
+#df
+str(registro)
+
+#vector
+str(edad_dos)
+
+```
+
+Podes acceder a los nombres de los elementos con `names()`: 
+
+```{r}
+
+#DF
+names(registro)
+
+#Se puede modificar el nombre de las columnas con la misma función: 
+
+names(registro) <- c("Nombres", "Apellidos", "Fechanac", "Idpersona")
+names(registro)
+
+#Lista
+names(listado)
+
+```
+
+Acceder a las primeras y útlimas filas con `head()`y `tail()`:
+
+```{r}
+#primeras filas
+head(registro)
+
+#ultimas filas
+tail(registro)
+
+```
+
+
+Obtener un resumen con `summary()`:
+
+```{r}
+summary(registro)
+
+```
+
+Y acceder a los valores únicos o distintos con `unique()`:
+
+```{r}
+unique(registro$Nombres)
+```
+
+El `$` permite acceder a un subconjunto o elemento de un df o de una lista. También se pueden acceder a través de `[[]]`.
+
+```{r}
+
+unique(registro[["Nombres"]])
+
+```
+
+# Importación y exportación 
+
+## Importación
+
+Si bien podemos crear objetos en R, también podemos querer trabajar con datos extraídos de otras fuentes. 
+
+Desde una **url**:
+
+```{r}
+#Librería readr para importar archivos: 
+#install.packages("readr)
+library(readr)
+
+#Defino url
+url <- ("https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-desarrollo-humano-y-habitat/unidades-territoriales-de-inclusion-urbana/unidades-territoriales-de-inclusion-urbana.csv")
+unidades_inclusion_urbana <- read_csv(url)
+
+```
+
+*Dato*: Si no sabes o recordas los argumentos de una función, podes seleccionarla y presionar **F1** en el teclado. Este atajo llama a la función `help()` que trae la documentación de la función, aunque también podes hacerlo manualmente: 
+
+```{r}
+
+help(read_csv)
+
+```
+
+
+Desde archivo **csv**:
+
+```{r}
+#Defino la ruta
+setwd("C:/Users/Melina/OneDrive/Documentos/Proyectos R/Curso-R/")
+#Chequeo mi ruta
+getwd()
+
+#Importo
+clase <- "clase2"
+barrios_populares<-read_csv(paste0("./data/", clase, "/datosbp.csv"))
+
+
+```
+
+Desde archivo **.sav**:
+
+```{r}
+library(haven)
+
+clase<-"clase1"
+base <-read_sav(paste0("./data/",clase, "/Base Portenos Octubre 2019.sav"))
+
+```
+
+Desde archivo **.xlsx**: 
+
+```{r}
+library(readxl)
+
+#Importo
+clase<-"clase2"
+encuesta_movilidad <-  read_excel(paste0("./data/",clase, "/Hogar_ENMODO18.xlsx"))
+ 
+```
+
+## Exportación
+
+También, puedo querer exportar los datos trabajos en R a otros formato: 
+
+A un archiovo **.csv**:
+
+```{r}
+write.csv(registro, paste0("./data/", clase, "/registro.csv"), row.names = F, fileEncoding = "UTF-8")
+```
+
+A un archivo **.xlsx**:
+
+```{r}
+library(xlsx)
+
+write.xlsx(registro, paste0("./data/", clase, "/registro.xlsx"), row.names = F)
+```
+
+A un archivo **.sav**:
+
+```{r}
+#library(haven)
+
+write_sav(registro, paste0("./data/", clase, "/registro.sav"))
+
+```
+
+Por supuesto que hay otros formatos en los que se pueden importar y exportar datos desde R. Pueden encontrar más información [aquí](https://r-coder.com/exportar-datos-r/) o [aquí](https://myrbooksp.netlify.app/import.html).
+
+
+# Introducción a Tidyverse
+
+Tidyverse es un conjunto de paquetes en R diseñados para la ciencia de datos. Estos paquetes comprenden funciones que facilitan el proceso de importación, limpieza, transformación, visualización, modelado y comunicación de datos.
+
+Tidyverse contiene los siguientes paquetes: **ggplot2**, **dplyr**, **tidyr**, **readr**, **purr**, **tibble**, **stringr**, **forcats**. Si bien no vamos a verlos a todos en detalle, pueden explorarlos mediante la [documentación](https://www.tidyverse.org/packages/).
+
+Recuerden que las librerías deben cargarse al iniciar cada sesión de R con `library()`.
+
+```{r}
+#install.packages("tidyverse")
+library(tidyverse)
+
+```
+
+Vamos a seguir trabajando con el dataframe de barrios populares (2021): 
+
+```{r}
+#Importo
+clase <- "clase2"
+barrios_populares <-read_csv(paste0("./data/", clase, "/datosbp.csv"))
+
+```
+Podemos ver las columnas como aprendimos: 
+
+```{r}
+colnames(barrios_populares)
+```
+## Select()
+
+Si quisieramos trabajar sólo con cantidades de personas y familias encuestadas, podríamos quedarnos con esas ***columnas** usando `select()`:
+
+```{r}
+cantidades <- barrios_populares %>% select("familias_encuestadas", "personas_encuestadas")
+
+#también podríamos acceder mediante el índice, el orden de esas columnas: 
+
+cantidades_dos <- barrios_populares %>% select(11:12)
+
+rm(cantidades_dos)
+
+#rm(list=ls())
+```
+
+Observen que en el chunk anterior utilizamos ` %>% ` que es el pipe, un operador que permite encadenar funciones. Así, evita que debamos escribir varias veces el mismo código o llamar al mismo objeto de manera reiterada. 
+
+Por otro lado, el `rm()` permite suprimir objetos del enviroment. Con `rm(list = ls())` pueden limpiar el enviroment por completo. 
+
+## Filter()
+
+Además, podríamos querer trabajar sólo con datos correspondientes a La Pampa. En ese caso, para seleccionar **filas**, usaríamos `filter()`:
+
+```{r}
+la_pampa <- barrios_populares %>% filter(Provincia == "La Pampa")
+```
+
+
+## Arrange()
+
+Podríamos querer ordenar los datos mediante algún atributo. Por ejemplo, el año de creación: 
+
+```{r}
+#orden ascendente
+la_pampa <- la_pampa %>% arrange(`Año de creación`)
+head(la_pampa)
+
+#orden descendente
+la_pampa <- la_pampa %>% arrange(desc(`Año de creación`))
+la_pampa
+
+```
+
+## Mutate()
+
+Podríamos querer crear otra columna, por ejemplo para saber cuál es el % de las mujeres que son responsables en el BP: 
+
+```{r}
+la_pampa <- la_pampa %>% mutate(porcentaje_MR = round((responsable_genero_fem/personas_genero_fem)*100,2))
+
+select(la_pampa, responsable_genero_fem, personas_genero_fem, porcentaje_MR)
+
+```
+
+## Group_by() y summarise()
+
+Para obtener datos agregados por cierta variable, podemos utilizar `group_by()` y obtener nuevas columnas con los valores deseados con `summarise()`. Por ejemplo, al obtener cantidad de barrios creados por año en La Pampa: 
+
+```{r}
+#cantidad de filas por año
+total_anual <- la_pampa %>% group_by(`Año de creación`) %>% summarise(barrios_creados = n())
+total_anual
+
+#promedio de familias encuestas por localidad
+flias <- la_pampa %>% group_by(Localidad) %>% summarise(promedio_flias = mean(familias_encuestadas))
+flias
+
+```
+
+## Rename()
+
+Finalmente, podríamos querer renombrar una variable. En ese caso, usaríamos `rename()`: 
+
+```{r}
+#nombre nuevo = nombre a cambiar
+la_pampa <- la_pampa %>% rename(anio_creacion = `Año de creación`,
+                                dpto_partido = `Departamento \\ Partido`)
+colnames(select(la_pampa, 1:6))
+
+```
+
+# Práctica
+
+1. Crear un objeto que contenga los barrios correspondientes a las provincias de Buenos Aires:
+
+```{r}
+
+```
+
+2. Seleccionar las columnas correspondientes al dpto_partido y los servicios públicos (electricidad, agua, cloaca):
+
+```{r}
+
+```
+
+3. Contabilizar la cantidad de barrios por localidad: 
+
+```{r}
+
+```
+
+4. Obtener el porcentaje de familias encuestadas respecto al total de familias estimado:
+
+```{r}
+
+```
+
+5. Renombrar la variable familias estimadas
+
+```{r}
+
+```
+
+6. Exportar los resultados obtenidos a un archivo de tipo .csv: 
+
+```{r}
+
+```
+
