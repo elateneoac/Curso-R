@@ -1,0 +1,433 @@
+---
+title: '"Introducción a R para el análisis de datos sociales: Clase 4"'
+author: '"Laboratorio de Datos - El Ateneo"'
+date: "23/8/2022"
+output: rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: false
+    code_folding: "show"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Gráficos
+
+En la clase de hoy vamos a ver cómo generar gráficos bonitos (o al menos eso intentaremos) con distintos paquetes
+
+## 1 Levantamos data
+
+Lo primero que vamos a hacer es cargar las librerías
+
+```{r}
+#install.packages("tidyverse")
+library(tidyverse)
+library(lubridate)
+```
+
+Y lo segundo que vamos a hacer es cargar el dataset que vamos a usar. Este dataset contiene datos de delitos denunciados en CABA durante 2019
+
+```{r}
+
+clase<-"clase4"
+
+# base <- read.csv("https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-justicia-y-seguridad/delitos/delitos_2019.csv",
+#                  encoding = "UTF-8")
+file.exists(paste0("../data/",clase,"/delitos_2019.csv"))
+
+base<-read.csv(file = paste0("../data/",clase,"/delitos_2019.csv"), encoding = "UTF-8")
+
+```
+
+## 2 Estructura de un gráfico
+
+Antes de ponernos a graficar, necesitamos entender la estructura de un gráfico, cómo se escribe:
+
+```{r}
+mi_grafico<-ggplot(data, #llamamos a ggplot y definimos el df que vamos a graficar
+                   aes(x=variable_independiente, y=variable_dependiente))+ #definimos los datos que van a ir en cada eje
+  geom_point()+ #definimos la geometria del grafico
+  geom_line()+ #podemos agregar o combinar geometrias 
+  scale_y_continuous()+ #definimos las escalas de los ejes
+  scale_colour_brewer()+#definimos colores para las variables
+  theme()+ #definimos elementos esteticos del grafico (fondo, bordes, tamano de letras,etc)
+  facet_grid()+#podemos definir facetas (dividir en sub-graficos segun alguna variable)
+  coord_flip()+#podemos definir el sistema de coordenadas 
+  labs() #definimos titulos o nombre de los ejes
+
+```
+
+Lo importante en este punto no es entender cada elemento, sino  entender que ggplot2 funciona con capas: cada elemento del gráfico es una capa, es decir, una línea de código
+
+## 3 Formas de escribir un gráfico
+
+Lo otro importante es saber que hay varias formas de escribir un gráfico, vamos a ver 4 formas que se pueden encontrar usualmente, la clave es entender dónde (en qué parte del código) se construye el df que vamos a graficar.
+
+### A) armamos el df por un lado y el plot por el otro
+
+```{r}
+delitos_por_comuna<-base%>%
+  group_by(comuna, tipo_delito)%>%
+  summarise(cantidad=n())
+
+plot_delitos_por_comuna<-ggplot(delitos_por_comuna,
+                           aes(x=comuna, y=cantidad, fill=tipo_delito))+ 
+  geom_bar(stat="identity", position = "dodge")
+plot_delitos_por_comuna
+```
+
+### B) armamos el df y agregamos el plot
+
+```{r}
+delitos_por_comuna<-base%>%
+  group_by(comuna, tipo_delito)%>%
+  summarise(cantidad=n())%>%
+  ggplot(aes(x=comuna, y=cantidad, fill=tipo_delito))+ 
+  geom_bar(stat="identity", position = "dodge")
+
+delitos_por_comuna
+```
+
+### C) armamos el df dentro del plot
+
+```{r}
+plot_delitos_por_comuna<-ggplot(base%>%
+                             group_by(comuna, tipo_delito)%>%
+                             summarise(cantidad=n()), 
+                           aes(x=comuna, y=cantidad,fill=tipo_delito))+
+  geom_bar(stat="identity", position = "dodge")
+plot_delitos_por_comuna
+```
+
+### D) armamos el df dentro de la geometria (esta es la opcion mas "rara")
+
+```{r}
+plot_delitos_por_comuna<-ggplot()+
+  geom_bar(base, mapping = aes(x=comuna, fill=tipo_delito), 
+           stat = "count", position = "dodge")
+plot_delitos_por_comuna
+```
+
+Nosotros nos vamos a quedar con la forma A, que es la más común y la que nos va a permitir practicar cómo manipular dataframes
+
+## 4 A graficar!
+
+Vamos a ir paso a paso para ir viendo cómo funciona esto de las capas
+
+### 4.1 scatterplot - Gráfico de puntos
+
+1-Invocamos la función
+```{r}
+ggplot()
+```
+
+2-Definimos los ejes x,y (x=lat, y=lon) y al objeto que va a ser nuestro grafico
+```{r}
+plot_delitos_por_tipo<-ggplot(base,aes(x=long, y=lat))
+
+plot_delitos_por_tipo
+```
+
+3-Agegamos la geometría que va a presentar nuestros datos (vamos a hacer un minifiltro para no sobrecargar la memoria)
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),aes(x=long, y=lat))+
+  geom_jitter()
+plot_delitos_por_tipo
+```
+
+4- Vamos a agregar colores a los puntos en función de una variable 
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito))+
+  geom_jitter()
+plot_delitos_por_tipo
+```
+
+5-Agreguemos una variable más
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+  geom_point()
+plot_delitos_por_tipo
+```
+
+6-Cambiemos el tamaño de los puntos
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+  geom_point(size=0.5)
+plot_delitos_por_tipo
+```
+
+7-Ahora cambiemos la transparencia de los puntos y agreguemos título, subtítulo y epígrafe 
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+  geom_point(size=0.75, alpha=0.7)+
+  labs(title = "Delitos por tipo",
+       subtitle = "Palermo",
+       caption = "Fuente: datos abiertos GCBA.")
+plot_delitos_por_tipo
+```
+
+8-Modifiquemos el tema del gráfico y los labels de las variables
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+  geom_point(size=0.75, alpha=0.7)+
+  theme_minimal()+
+  labs(x="Longitud",
+       y="Latitud",
+       color="Tipo de delito",
+       title = "Delitos por tipo",
+       subtitle = "Palermo",
+       caption = "Fuente: datos abiertos GCBA.")
+plot_delitos_por_tipo
+```
+
+9-Cambiemos los colores de los puntos
+https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long, y=lat,color=tipo_delito))+
+  geom_point(size=1, alpha=0.7)+
+  theme_minimal()+
+  # scale_color_brewer(palette = "Dark2")+
+  viridis::scale_color_viridis(option = "inferno", discrete = T)+
+  labs(x="Longitud",
+       y="Latitud",
+       color="Tipo de delito",
+       title = "Delitos por tipo",
+       subtitle = "Palermo",
+       caption = "Fuente: datos abiertos GCBA.")
+plot_delitos_por_tipo
+```
+
+10-Generemos facetas por barrio
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio%in%c("Palermo", "Paternal", "Flores","Liniers")),
+                                       aes(x=long, y=lat,color=tipo_delito))+
+  geom_point(size=1, alpha=0.7)+
+  theme_minimal()+
+  # scale_color_brewer(palette = "Dark2")+
+  viridis::scale_color_viridis(option = "inferno", discrete = T)+
+  facet_wrap(~barrio)+
+  labs(x="Longitud",
+       y="Latitud",
+       color="Tipo de delito",
+       title = "Delitos por tipo",
+       subtitle = "Palermo",
+       caption = "Fuente: datos abiertos GCBA.")
+plot_delitos_por_tipo
+```
+
+### 4.2 barplot - Gráfico de barras
+
+```{r}
+delitos_por_comuna<-base%>%
+  group_by(comuna, tipo_delito)%>%
+  summarise(cantidad=n())
+
+plot_delitos_por_comuna<-ggplot(delitos_por_comuna, 
+                                aes(x=comuna, y=cantidad, fill=tipo_delito))+
+  geom_bar(stat="identity", position = "dodge")
+plot_delitos_por_comuna
+```
+
+Mejoremos un poco el gráfico
+
+```{r}
+delitos_por_comuna<-base%>%
+  group_by(comuna, tipo_delito)%>%
+  summarise(cantidad=n())%>%
+  ungroup()%>%
+  filter(!is.na(comuna))%>% #quitamos los valores no asignados (NA)
+  mutate(comuna=as.factor(comuna)) #tranformamos a factor la variable comuna
+
+plot_delitos_por_comuna<-ggplot(delitos_por_comuna, 
+                           aes(x=reorder(comuna,cantidad),#reordenamos de mayor a menor
+                               y=cantidad, 
+                               fill=tipo_delito))+
+  # geom_bar(stat="identity", position = "stack")+
+  geom_bar(stat="identity", position = "dodge")+
+  # geom_bar(stat="identity", position = "fill")+
+  coord_flip()+ #"volteamos" el grafico
+  theme_minimal()+ #usamos un tema mínimo
+  theme(axis.text.y = element_text(size = 20))+ #agrandamos los numeros
+  labs(x="Comuna", y="Cantidad",
+       title = "Cantidad de delitos por comuna",
+       caption = "Fuente:datos abiertos GCBA") #agregamos labels
+plot_delitos_por_comuna
+```
+
+### 4.3 linebar - Gráfico de líneas
+```{r}
+
+base2<-base%>%
+  filter(!franja_horaria=="S/D")%>%
+  mutate(tipo_delito=as.factor(tipo_delito),
+         fecha=dmy(fecha))%>%
+  mutate(horario=as.numeric(franja_horaria))
+
+delitos_por_fecha<-base2%>%
+  group_by(fecha, tipo_delito)%>%
+  summarise(cantidad=n())
+
+plot_delitos_por_fecha<-ggplot(delitos_por_fecha, 
+                               aes(x=fecha, y=cantidad, color=tipo_delito))+
+  geom_line(size=1, alpha=1)
+  # geom_smooth()
+plot_delitos_por_fecha
+```
+
+### 4.3 Heat map - Mapa de calor
+
+```{r}
+base_dias_horarios<-base%>%
+  mutate(dia=wday(fecha, label = T))%>%
+  group_by(dia, horario)%>%
+  summarise(cantidad=n())
+
+plot_dias_horarios<-ggplot(base_dias_horarios,aes(x=dia, y=horario, fill=cantidad))+
+  geom_tile()+
+  # scale_fill_distiller(palette = "YlOrRd", direction = 1)+
+  labs(title="Cantidad de delitos por día y hora")
+plot_dias_horarios
+```
+
+## 5 combinaciones y chiches
+
+Vamos a combinar distintas geometrías, empecemos por líneas y puntos
+
+```{r}
+base_delitos_fecha_2<-base%>%
+  mutate(mes=round_date(fecha, unit = "month"))%>% #redondeamos por mes
+  group_by(mes, tipo_delito)%>% #agrupamos por mes
+  summarise(cantidad=n())
+
+plot_delitos_mes<-ggplot(base_delitos_fecha_2, aes(x=mes, y=cantidad, color=tipo_delito))+
+  geom_line()+
+  geom_point()
+plot_delitos_mes
+
+```
+
+Ahora vamos a manipular el eje X de un plot anterior
+
+```{r}
+plot_delitos_por_fecha<-plot_delitos_por_fecha+
+  scale_x_date(date_breaks = "1 month",
+  date_labels = "%Y %b")
+plot_delitos_por_fecha
+```
+
+Vamos a superponer plots
+
+```{r}
+plot_areas<-ggplot()+
+  geom_area(data = base_delitos_fecha_2%>%
+              filter(tipo_delito=="Robo (con violencia)"), 
+            mapping = aes(x=mes, y=cantidad,fill=tipo_delito),alpha=0.5)+
+  geom_area(data = base_delitos_fecha_2%>%
+              filter(tipo_delito=="Hurto (sin violencia)"), 
+            mapping = aes(x=mes, y=cantidad,fill=tipo_delito),alpha=0.5)+
+  geom_area(data = base_delitos_fecha_2%>%
+              filter(tipo_delito=="Lesiones"), 
+            mapping = aes(x=mes, y=cantidad,fill=tipo_delito),alpha=0.5)+
+  geom_area(data = base_delitos_fecha_2%>%
+              filter(tipo_delito=="Homicidio"), 
+            mapping = aes(x=mes, y=cantidad,fill=tipo_delito),alpha=1)+
+  theme_minimal()+
+  labs()
+plot_areas
+```
+
+Vamos a agregar colores fijados manualmente
+
+```{r}
+unique(base$tipo_delito) #primero nos fijamos las categorias que tiene la variable
+
+colores_tipo_delito<-c("Homicidio"="#9FE73B",
+                       "Hurto (sin violencia)"="#57BEC3",
+                       "Robo (con violencia)"="#E13586",
+                       "Lesiones"="#A7DCDE") #definimos los colores a usar
+
+plot_areas_2<-plot_areas+
+  scale_fill_manual(values = colores_tipo_delito)
+plot_areas_2
+
+```
+
+## 6 Guardemos nuestros plots
+
+```{r}
+dir.create("../plots")
+path_plots<-("../plots")
+
+ggsave(filename = "1 Cantidad de delitos por comuna.png",
+       plot = plot_delitos_por_comuna,
+       device = "png",
+       path = path_plots,
+       width = 20,
+       height = 15,
+       units = "cm")
+```
+
+## 7.1 YAPA 1
+
+Todos estos gráficos podemos decir que son "estáticos"en contraposición a lo que vamos a hacer a continuación: un gráfico "dinámico". 
+
+Primero cargamos la libería
+https://plotly.com/r/
+
+```{r}
+#install.packages("pltly")
+library(plotly)
+```
+
+Y ahora la magia:
+
+```{r}
+ggplotly(plot_delitos_por_comuna, tooltip = c("tipo", "cantidad"))
+
+```
+
+## 7.2 YAPA 2
+
+Otra forma de generar gráficos "dinámicos" es creando GIFs.
+
+Primero cargamos la librería
+
+```{r}
+library(gganimate)
+
+```
+
+Y ahora la magia
+
+```{r}
+plot_delitos_mes_animate<-ggplot(base_delitos_fecha_2, aes(x=mes, y=cantidad, color=tipo_delito))+
+  geom_point()+
+  geom_line()+
+  transition_reveal(mes)
+plot_delitos_mes_animate
+```
+
