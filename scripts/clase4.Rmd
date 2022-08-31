@@ -281,13 +281,11 @@ plot_delitos_por_comuna
 ### 4.3 linebar - Gráfico de líneas
 ```{r}
 
-base2<-base%>%
+delitos_por_fecha<-base%>%
   filter(!franja_horaria=="S/D")%>%
   mutate(tipo_delito=as.factor(tipo_delito),
          fecha=dmy(fecha))%>%
-  mutate(horario=as.numeric(franja_horaria))
-
-delitos_por_fecha<-base2%>%
+  mutate(horario=as.numeric(franja_horaria))%>%
   group_by(fecha, tipo_delito)%>%
   summarise(cantidad=n())
 
@@ -302,13 +300,14 @@ plot_delitos_por_fecha
 
 ```{r}
 base_dias_horarios<-base%>%
-  mutate(dia=wday(fecha, label = T))%>%
+  mutate(dia=wday(fecha, label = T),
+         horario=as.numeric(franja_horaria))%>%
   group_by(dia, horario)%>%
   summarise(cantidad=n())
 
 plot_dias_horarios<-ggplot(base_dias_horarios,aes(x=dia, y=horario, fill=cantidad))+
   geom_tile()+
-  # scale_fill_distiller(palette = "YlOrRd", direction = 1)+
+  scale_fill_distiller(palette = "YlOrRd", direction = 1)+
   labs(title="Cantidad de delitos por día y hora")
 plot_dias_horarios
 ```
@@ -319,7 +318,8 @@ Vamos a combinar distintas geometrías, empecemos por líneas y puntos
 
 ```{r}
 base_delitos_fecha_2<-base%>%
-  mutate(mes=round_date(fecha, unit = "month"))%>% #redondeamos por mes
+  mutate(fecha=dmy(fecha),
+         mes=round_date(fecha, unit = "month"))%>% #redondeamos por mes
   group_by(mes, tipo_delito)%>% #agrupamos por mes
   summarise(cantidad=n())
 
@@ -418,7 +418,7 @@ Primero cargamos la librería
 
 ```{r}
 library(gganimate)
-
+library(runner)
 ```
 
 Y ahora la magia
@@ -429,5 +429,34 @@ plot_delitos_mes_animate<-ggplot(base_delitos_fecha_2, aes(x=mes, y=cantidad, co
   geom_line()+
   transition_reveal(mes)
 plot_delitos_mes_animate
+```
+
+Y otra magia 
+
+```{r}
+base_comuna_fecha<-base%>%
+  mutate(fecha=dmy(fecha),
+         mes=round_date(fecha, unit = "month"))%>%
+  group_by(comuna, mes)%>%
+  summarise(cantidad=n())%>%
+  filter(!is.na(comuna))%>%
+  arrange(comuna)%>%
+  mutate(suma=sum_run(x = cantidad,k=1, idx = comuna),
+         comuna=as.factor(comuna))%>%
+  select(mes,comuna,suma)
+  # ungroup()
+
+plot_crecimiento<-ggplot(base_comuna_fecha, aes(x=reorder(comuna,suma), suma, fill=comuna))+
+  geom_bar(stat="identity")+
+  geom_text(aes(x=1, y=18000, label=mes, size=20))+
+  coord_flip()+
+  facet_wrap(~mes)+
+  facet_null()+
+  transition_time(time = mes)+
+  # transition_states(states = fecha)+
+  # transition_reveal(fecha)+
+  # ease_aes('sine-in-out')+
+  labs(title = "Cantidad de delitos")
+plot_crecimiento
 ```
 
