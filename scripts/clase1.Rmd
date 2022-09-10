@@ -1,0 +1,187 @@
+---
+title: "Introducción a R para el análisis de datos sociales: Clase 1"
+author: "Laboratorio de Datos - El Ateneo"
+date: "24/09/2022"
+output: 
+  rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: false
+    code_folding: "show"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Bienvenidxs 🙌
+
+Habiendo instalado R  y Rstudio, veremos de qué se trata el entorno y daremos los primeros pasos en **R**. 
+
+
+# Objetos
+
+En R todo es un objeto.
+
+Antes de avanzar, tengamos en cuenta que cuando R se ejecuta nos devuelve un valor, esta salida podemos chequearla en la consola. 
+
+Por ejemplo, si lo usamos cual calculadora:
+
+```{r}
+
+10 + 1
+
+```
+
+También, podemos generar un chunk de código con `ctrl + alt + i`.
+
+Practiquemos crear uno: 
+
+
+
+# Operadores
+
+## Operadores de asignación
+
+Volviendo a los objetos, en R podemos crear un objeto y asignarlo. Para ellos, se emplean los **operadores de asignación** de la siguiente forma:   `<-` `(alt + -)`; o con `=`.
+
+Por ejemplo, creemos el objeto edad y asignemoslé un valor: 
+
+```{r}
+edad  <- 27
+edad
+
+edad_dos = 40
+edad_dos
+```
+
+En el **Enviroment** vamos a ver que el objeto está creado. También podemos consultar cuál es el valor del objeto llamandolo (selecciono y presiono `ctrl + enter`). 
+
+## Operadores lógicos y relacionales
+
+Estos se utilizan para describir relaciones lógicas, expresadas como **verdadero (TRUE)** o **falso (FALSE)**, y para hacer comparaciones.
+
+Por ejemplo:
+
+```{r}
+barrio_uno <- "Flores"
+
+barrio_dos <- "Almagro"
+
+#Preguntemosle a R si estos objetos poseen valores iguales: 
+
+barrio_uno == barrio_dos
+
+#Valores distintos:
+
+barrio_uno != barrio_dos
+
+#Valores incluidos en otro objeto: 
+
+barrio_tres <- "Palermo"
+
+todos_los_barrios <- c(barrio_uno, barrio_dos, barrio_tres)
+
+barrio_uno %in% todos_los_barrios
+
+#Qué pasa si quiero chequear que no esté incluído un valor?
+
+! "Paternal" %in% todos_los_barrios
+
+# Chequeo qué valor es mayor, menor, mayor o igual, en caso de objetos numéricos: 
+
+edad > edad_dos
+
+edad_dos <= edad
+
+```
+Si bien hay más operadores, estos son los más usados en R. Podrán encontrar mayor información [aquí](https://bookdown.org/jboscomendoza/r-principiantes4/operadores-logicos.html).
+
+
+# Tipos de objetos
+
+En R, los objetos pueden ser de distinto tipo: 
+
+## Numéricos enteros (integer):
+
+```{r}
+
+edad_entera <- 67
+edad_entera
+
+```
+
+## Numéricos con decimal (numeric, float, doble):
+
+```{r}
+edad_exacta <- 67.6
+edad_exacta
+```
+
+## Cadenas de texto (Character):
+
+```{r}
+provincia <-  "Buenos Aires"
+provincia
+
+```
+
+Observen que este tipo de datos deben incluirse entre comillas. 
+
+## Factor (factor): 
+
+```{r}
+nivel_educativo <- as.factor(c("Inicial", "Primario", "secundario", "Terciario", "Universitario"))
+nivel_educativo
+```
+Es un tipo de objeto específico de R que permite describir un dato numérico mediante una etiqueta (como etiquetas de SPSS). 
+
+## Lógicos (logical):
+
+```{r}
+persona_identificada <- TRUE
+persona_identificada
+
+```
+
+Además, existen objetos con valores perdidos o nulos:
+
+```{r}
+perdidos <- NA
+perdidos
+nulos <- NULL
+nulos
+
+```
+
+Podemos chequear el tipo o la clase del objeto: 
+
+```{r}
+class(nulos)
+class(provincia)
+```
+
+Los objetos en R pueden ser *coercionados*, forzados a ser de un tipo:
+
+```{r}
+provincia <- as.factor(provincia)
+class(provincia)
+
+edad <- as.character(edad)
+class(edad)
+
+```
+
+# Librerías
+
+Lo que vimos recién, `as.factor()` y `as.character()` son funciones. En R existen **paquetes**que contienen funciones y bases de datos ya prediseñadas. Éstas son las **librerías**, y para usarlas primero tenemos que instalarlas (esto se hace por única vez) con `install.packages()` y cargarlas con `library()` (esto se hace cada vez que vamos a usarlas):
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+
+Práctica: 
+

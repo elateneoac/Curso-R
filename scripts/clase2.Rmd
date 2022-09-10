@@ -1,7 +1,7 @@
 ---
 title: "Introducción a R para el análisis de datos sociales: Clase 2"
 author: "Laboratorio de Datos - El Ateneo"
-date: "17/09/2022"
+date: "01/10/2022"
 output: 
   rmdformats::robobook:
     self_contained: true
@@ -14,116 +14,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-clase 1?? y agregar operadores? asignación, lógicos, relacionales
-paquetes y librerías
 
-
-# Objetos
-
-En la clase de hoy vamos a trabajar con los principales objetos de R (en R todo es un objeto).
-
-Antes de avanzar, recordemos que cuando R se ejecuta nos devuelve un valor, esta salida podemos chequearla en la consola. 
-
-Por ejemplo, si lo usamos cual calculadora:
-
-```{r}
-
-10 + 1
-
-```
-
-Recuerden que podemos generar un chunk de código con `ctrl + alt + i`.
-
-La asignación de objetos se realiza mediante el operador  `<-` `(alt + -)`; o con el `=`.
-Por ejemplo, creemos el objeto edad y asignemoslé un valor: 
-
-```{r}
-edad  <- 27
-edad
-
-edad_dos = 40
-edad_dos
-```
-
-En el Enviroment vamos a ver que el objeto está creado. También podemos consultar cuál es el valor del objeto llamandolo (selecciono y presiono `ctrl + enter`). 
-
-Ahora sí, pasemos a los objetos. 
-
-## Tipos
-
-En R, los objetos pueden ser de distinto tipo: 
-
-## Numéricos enteros (integer):
-
-```{r}
-
-edad_entera <- 67
-edad_entera
-
-```
-
-## Numéricos con decimal (numeric, float, doble):
-
-```{r}
-edad_exacta <- 67.6
-edad_exacta
-```
-
-## Cadenas de texto (Character):
-
-```{r}
-provincia <-  "Buenos Aires"
-provincia
-
-```
-
-Observen que este tipo de datos deben incluirse entre comillas. 
-
-## Factor (factor): 
-
-```{r}
-nivel_educativo <- as.factor(c("Inicial", "Primario", "secundario", "Terciario", "Universitario"))
-nivel_educativo
-```
-Es un tipo de objeto específico de R que permite describir un dato numérico mediante una etiqueta (como etiquetas de SPSS). 
-
-## Lógicos (logical):
-
-```{r}
-persona_identificada <- TRUE
-persona_identificada
-
-```
-
-Además, existen objetos con valores perdidos o nulos:
-
-```{r}
-perdidos <- NA
-perdidos
-nulos <- NULL
-nulos
-
-```
-
-Podemos chequear el tipo o la clase del objeto: 
-
-```{r}
-class(nulos)
-class(provincia)
-```
-
-Los objetos en R pueden ser *coercionados*, forzados a ser de un tipo:
-
-```{r}
-provincia <- as.factor(provincia)
-class(provincia)
-
-edad <- as.character(edad)
-class(edad)
-
-```
-
-clase 2??
 
 # Estructuras de datos
 
