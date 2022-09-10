@@ -20,10 +20,10 @@ Al finalizar el curso, se espera que los participantes sean capaces de:
 
 ## Cursada ⌨
 
-- **Fecha de inicio**: Sábado 10 de Septiembre del 2022
-- **Cantidad de clases**: 8 clases (16 horas totales) 
+- **Fecha de inicio**: Sábado 24 de Septiembre del 2022
+- **Cantidad de clases**: 8 clases (20 horas totales) 
 - **Modalidad de cursada**: sincrónica virtual. 
-- **Presentación del Trabajo Final**: Sábado 12 de Noviembre del 2022
+- **Presentación del Trabajo Final**: Sábado 26 de Noviembre del 2022
 
 ## Contenidos 🔨
 

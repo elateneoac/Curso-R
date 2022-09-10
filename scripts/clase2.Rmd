@@ -313,13 +313,13 @@ Desde archivo **csv**:
 
 ```{r}
 #Defino la ruta
-setwd("C:/Users/Melina/OneDrive/Documentos/Proyectos R/Curso-R/")
+# setwd("C:/Users/Melina/OneDrive/Documentos/Proyectos R/Curso-R/")
 #Chequeo mi ruta
 getwd()
 
 #Importo
 clase <- "clase2"
-barrios_populares<-read_csv(paste0("./data/", clase, "/datosbp.csv"))
+barrios_populares<-read_csv(paste0("../data/", clase, "/datosbp.csv"))
 
 
 ```
@@ -330,7 +330,7 @@ Desde archivo **.sav**:
 library(haven)
 
 clase<-"clase1"
-base <-read_sav(paste0("./data/",clase, "/Base Portenos Octubre 2019.sav"))
+base <-read_sav(paste0("../data/",clase, "/Base Portenos Octubre 2019.sav"))
 
 ```
 
@@ -341,7 +341,7 @@ library(readxl)
 
 #Importo
 clase<-"clase2"
-encuesta_movilidad <-  read_excel(paste0("./data/",clase, "/Hogar_ENMODO18.xlsx"))
+encuesta_movilidad <-  read_excel(paste0("../data/",clase, "/Hogar_ENMODO18.xlsx"))
  
 ```
 
@@ -352,7 +352,7 @@ También, puedo querer exportar los datos trabajos en R a otros formato:
 A un archiovo **.csv**:
 
 ```{r}
-write.csv(registro, paste0("./data/", clase, "/registro.csv"), row.names = F, fileEncoding = "UTF-8")
+write.csv(registro, paste0("../data/", clase, "/registro.csv"), row.names = F, fileEncoding = "UTF-8")
 ```
 
 A un archivo **.xlsx**:
@@ -360,7 +360,7 @@ A un archivo **.xlsx**:
 ```{r}
 library(xlsx)
 
-write.xlsx(registro, paste0("./data/", clase, "/registro.xlsx"), row.names = F)
+write.xlsx(registro, paste0("../data/", clase, "/registro.xlsx"), row.names = F)
 ```
 
 A un archivo **.sav**:
@@ -368,7 +368,7 @@ A un archivo **.sav**:
 ```{r}
 #library(haven)
 
-write_sav(registro, paste0("./data/", clase, "/registro.sav"))
+write_sav(registro, paste0("../data/", clase, "/registro.sav"))
 
 ```
 
@@ -394,7 +394,7 @@ Vamos a seguir trabajando con el dataframe de barrios populares (2021):
 ```{r}
 #Importo
 clase <- "clase2"
-barrios_populares <-read_csv(paste0("./data/", clase, "/datosbp.csv"))
+barrios_populares <-read_csv(paste0("../data/", clase, "/datosbp.csv"))
 
 ```
 Podemos ver las columnas como aprendimos: 
