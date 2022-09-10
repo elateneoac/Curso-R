@@ -1,0 +1,16 @@
+---
+title: "Introducción a R para el análisis de datos sociales: Clase 3"
+author: "Laboratorio de Datos - El Ateneo"
+date: "08/10/2022"
+output: 
+  rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: false
+    code_folding: "show"
+---
+
+```{r}
+
+```
+
