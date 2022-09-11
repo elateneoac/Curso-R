@@ -1,7 +1,7 @@
 ---
-title: '"Introducción a R para el análisis de datos sociales: Clase 4"'
-author: '"Laboratorio de Datos - El Ateneo"'
-date: "23/8/2022"
+title: "Introducción al análisis de datos con R: Clase 4"
+author: "Laboratorio de Datos - El Ateneo"
+date: "15/09/2022"
 output: rmdformats::robobook:
     self_contained: true
     thumbnails: true
