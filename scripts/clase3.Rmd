@@ -1,5 +1,5 @@
 ---
-title: "Introducción a R para el análisis de datos sociales: Clase 3"
+title: "Introducción al análisis de datos con R: Clase 3"
 author: "Laboratorio de Datos - El Ateneo"
 date: "08/10/2022"
 output: 

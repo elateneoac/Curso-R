@@ -1,5 +1,5 @@
 ---
-title: "Introducción a R para el análisis de datos sociales: Clase 1"
+title: "Introducción al análisis de datos con R: Clase 1"
 author: "Laboratorio de Datos - El Ateneo"
 date: "24/09/2022"
 output: 
@@ -96,6 +96,15 @@ edad > edad_dos
 edad_dos <= edad
 
 ```
+
+Entonces, los operadores son: 
+
+- Igual: `==`
+- Distinto: `!=`
+- Objeto dentro de valores: `%in%`
+- Expresión no incluída dentro de valores: `! %in%`
+- Mayor, menor o igual: `>`, `<=`
+
 Si bien hay más operadores, estos son los más usados en R. Podrán encontrar mayor información [aquí](https://bookdown.org/jboscomendoza/r-principiantes4/operadores-logicos.html).
 
 
@@ -175,13 +184,49 @@ class(edad)
 
 # Librerías
 
-Lo que vimos recién, `as.factor()` y `as.character()` son funciones. En R existen **paquetes**que contienen funciones y bases de datos ya prediseñadas. Éstas son las **librerías**, y para usarlas primero tenemos que instalarlas (esto se hace por única vez) con `install.packages()` y cargarlas con `library()` (esto se hace cada vez que vamos a usarlas):
+Lo que vimos recién, `as.factor()` y `as.character()` son funciones. En R hay funciones que vienen incluídas, como las aritméticas:
 
 ```{r}
-install.packages("tidyverse")
+sum(edad_entera, edad_exacta)
+
+mean(edad_entera, edad_exacta)
+```
+Aunque también existen **paquetes**que contienen funciones y bases de datos ya prediseñadas. Éstas son las **librerías**, y para usarlas primero tenemos que instalarlas (esto se hace por única vez) con `install.packages()` y cargarlas con `library()` (esto se hace cada vez que vamos a usarlas):
+
+```{r}
+#install.packages("tidyverse")
 library(tidyverse)
 ```
 
 
-Práctica: 
+# Práctica
+
+1. Crear tres objetos y asignarles: a uno los nombres, a otro la edad, y al tercero la ocupación de lxs integrantes de tu familia. 
+
+```{r}
+
+```
+
+2. Para las tres variables creadas en el punto anterior, verificar la clase o el tipo de objeto: 
+
+```{r}
+
+```
+
+3. Chequear si el valor 27 se encuentra comprendido entre las edades de lxs integrantes de tu familia: 
+
+```{r}
+
+```
+
+4. Convertir el objeto nombres en uno de tipo numérico. ¿Qué sucede?
+
+```{r}
+
+```
+5. Verificar si las ocupaciones incluidas en el tercer objeto son todas iguales:
+
+```{r}
+
+```
 
