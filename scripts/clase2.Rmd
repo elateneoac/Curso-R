@@ -401,7 +401,7 @@ colnames(select(la_pampa, 1:6))
 
 ```
 
-5. Renombrar la variable familias estimadas
+5. Renombrar la variable familias estimadas:
 
 ```{r}
 
