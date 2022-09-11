@@ -118,7 +118,7 @@ Para conocer la estructura del objeto podemos usar `str()`:
 str(registro)
 
 #vector
-str(edad_dos)
+str(paises)
 
 ```
 
@@ -172,6 +172,15 @@ unique(registro[["Nombres"]])
 
 ```
 
+También se pueden ver la cantidad de categorías de una variable con `lenght()` o `distinct()`
+
+```{r}
+
+length(unique(registro$Nombres))
+
+```
+
+
 # Importación y exportación 
 
 ## Importación
@@ -218,6 +227,7 @@ barrios_populares<-read_csv(paste0("../data/", clase, "/datosbp.csv"))
 Desde archivo **.sav**:
 
 ```{r}
+# install.packages("haven")
 library(haven)
 
 clase<-"clase1"
@@ -228,6 +238,7 @@ base <-read_sav(paste0("../data/",clase, "/Base Portenos Octubre 2019.sav"))
 Desde archivo **.xlsx**: 
 
 ```{r}
+# install.packages("readxl")
 library(readxl)
 
 #Importo
@@ -249,6 +260,7 @@ write.csv(registro, paste0("../data/", clase, "/registro.csv"), row.names = F, f
 A un archivo **.xlsx**:
 
 ```{r}
+# install.packages("xlsx")
 library(xlsx)
 
 write.xlsx(registro, paste0("../data/", clase, "/registro.xlsx"), row.names = F)
@@ -321,6 +333,16 @@ Además, podríamos querer trabajar sólo con datos correspondientes a La Pampa.
 la_pampa <- barrios_populares %>% filter(Provincia == "La Pampa")
 ```
 
+O también con datos de una región que incluya varias provincias:
+
+```{r}
+
+provincias_noa<-c("Jujuy", "Salta", "Tucumán", "Catamarca", "La Rioja", "Santiago del Estero")
+
+noa<-barrios_populares %>% filter(Provincia%in%provincias_noa)
+
+```
+
 
 ## Arrange()
 
@@ -365,7 +387,7 @@ flias
 
 ## Rename()
 
-Finalmente, podríamos querer renombrar una variable. En ese caso, usaríamos `rename()`: 
+Podríamos querer renombrar una variable. En ese caso, usaríamos `rename()`: 
 
 ```{r}
 #nombre nuevo = nombre a cambiar
@@ -374,6 +396,79 @@ la_pampa <- la_pampa %>% rename(anio_creacion = `Año de creación`,
 colnames(select(la_pampa, 1:6))
 
 ```
+## Joins
+
+Finalmente podría pasar que necesitemos cruzar datos de dos bases diferentes según los valores de alguna variable, algo parecido al BUSCARV() en excel. Para estas operaciones, se usan las funciones conocidas como joins. Antes de joinear, vamos a levantar la base donde están los datos que queremos agregar
+
+```{r}
+habitantes_bsas<-read.csv(paste0("../data/", clase, "/proyeccion_habitantes_bsas.csv"),encoding = "UTF-8")
+
+colnames(habitantes_bsas)
+
+length(unique(habitantes_bsas$Municipio))
+
+```
+Algo muy importante es que el nombre de las variables de cada df, por las que queremos joinear, debe coincidir:
+
+```{r}
+barrios_populares_2<-barrios_populares%>%
+  rename(Municipio=`Departamento \\ Partido`)%>%
+  select(id_renabap, Barrio, Provincia, Municipio, Localidad,`Año de creación`)
+
+```
+
+### Left_Join()
+
+La función `left_join()` nos junta ambos df pero dándole prioridad a los valores del df de la izquierda, es decir, se queda con todos los valores del primer df y para los valores que no matchean con el segundo df, les asigna valores NA. Lo que obtenemos de esta manera es que no se modifiquen el número de filas o registros de nuestro primer df:
+
+```{r}
+barrios_populares_left_join<-barrios_populares_2%>%
+  left_join(habitantes_bsas, by="Municipio")
+
+```
+
+### Right_Join()
+
+La función `right_join()` le da prioridad a los valores del df de la derecha:
+
+```{r}
+barrios_populares_right_join<-barrios_populares_2%>%
+  right_join(habitantes_bsas, by="Municipio")
+
+```
+
+### Full_Join()
+
+La función `full_join()` nos junta ambos df sin importar si hay valores que no matchean. Para esos valores sin match, se les asigna un NA. De esta forma, es probable que aumenten el número de filas: 
+
+```{r}
+barrios_populares_full_join<-barrios_populares_2%>%
+  full_join(habitantes_bsas, by = "Municipio")
+
+```
+
+### Inner_Join() 
+
+La función `inner_join()` nos junta ambos df sólo para los valores que matchean, de esta forma es probable que se reduzcan las filas:
+
+```{r}
+barrios_populares_inner_join<-barrios_populares_2%>%
+  inner_join(habitantes_bsas, by="Municipio")
+
+```
+
+### Anti_Join()
+
+La función `anti_join()` en vez de juntar df, nos elimina aquellos registros para los que encuentra match:
+
+```{r}
+barrios_populares_anti_join<-barrios_populares_2%>%
+  anti_join(habitantes_bsas, by="Municipio")
+
+```
+
+
+
 
 # Práctica
 
