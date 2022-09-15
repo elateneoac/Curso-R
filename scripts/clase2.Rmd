@@ -172,11 +172,12 @@ unique(registro[["Nombres"]])
 
 ```
 
-También se pueden ver la cantidad de categorías de una variable con `lenght()` o `distinct()`
+Por último, se pueden ver la cantidad de categorías de una variable con `lenght()` o `distinct()` (esta última pertenece a la libería Dplyr, incluida en el paquete Tidyverse que veremos más adelante).
 
 ```{r}
 
 length(unique(registro$Nombres))
+distinct(registro, Nombres)
 
 ```
 
@@ -200,7 +201,7 @@ unidades_inclusion_urbana <- read_csv(url)
 
 ```
 
-*Dato*: Si no sabes o recordas los argumentos de una función, podes seleccionarla y presionar **F1** en el teclado. Este atajo llama a la función `help()` que trae la documentación de la función, aunque también podes hacerlo manualmente: 
+*Dato*: Si no sabes o recordas los argumentos de una función, podes llamar a la función `help()` que trae la documentación de la función: 
 
 ```{r}
 
@@ -249,7 +250,7 @@ encuesta_movilidad <-  read_excel(paste0("../data/",clase, "/Hogar_ENMODO18.xlsx
 
 ## Exportación
 
-También, puedo querer exportar los datos trabajos en R a otros formato: 
+También, puedo querer exportar los datos trabajados en R a otros formato: 
 
 A un archiovo **.csv**:
 
@@ -300,14 +301,17 @@ clase <- "clase2"
 barrios_populares <-read_csv(paste0("../data/", clase, "/datosbp.csv"))
 
 ```
+
 Podemos ver las columnas como aprendimos: 
 
 ```{r}
 colnames(barrios_populares)
+
 ```
+
 ## Select()
 
-Si quisieramos trabajar sólo con cantidades de personas y familias encuestadas, podríamos quedarnos con esas ***columnas** usando `select()`:
+Si quisieramos trabajar sólo con cantidades de personas y familias encuestadas, podríamos quedarnos con esas **columnas** usando `select()`:
 
 ```{r}
 cantidades <- barrios_populares %>% select("familias_encuestadas", "personas_encuestadas")
@@ -339,7 +343,7 @@ O también con datos de una región que incluya varias provincias:
 
 provincias_noa<-c("Jujuy", "Salta", "Tucumán", "Catamarca", "La Rioja", "Santiago del Estero")
 
-noa<-barrios_populares %>% filter(Provincia%in%provincias_noa)
+noa <- barrios_populares %>% filter(Provincia%in%provincias_noa)
 
 ```
 
@@ -372,14 +376,14 @@ select(la_pampa, responsable_genero_fem, personas_genero_fem, porcentaje_MR)
 
 ## Group_by() y summarise()
 
-Para obtener datos agregados por cierta variable, podemos utilizar `group_by()` y obtener nuevas columnas con los valores deseados con `summarise()`. Por ejemplo, al obtener cantidad de barrios creados por año en La Pampa: 
+Para obtener datos agregados por cierta variable, podemos utilizar `group_by()` y obtener nuevas columnas con valores agrupados con `summarise()`. Por ejemplo, al obtener cantidad de barrios creados por año en La Pampa: 
 
 ```{r}
 #cantidad de filas por año
 total_anual <- la_pampa %>% group_by(`Año de creación`) %>% summarise(barrios_creados = n())
 total_anual
 
-#promedio de familias encuestas por localidad
+#promedio de familias encuestadas por localidad
 flias <- la_pampa %>% group_by(Localidad) %>% summarise(promedio_flias = mean(familias_encuestadas))
 flias
 
@@ -396,33 +400,38 @@ la_pampa <- la_pampa %>% rename(anio_creacion = `Año de creación`,
 colnames(select(la_pampa, 1:6))
 
 ```
+
 ## Joins
 
-Finalmente podría pasar que necesitemos cruzar datos de dos bases diferentes según los valores de alguna variable, algo parecido al BUSCARV() en excel. Para estas operaciones, se usan las funciones conocidas como joins. Antes de joinear, vamos a levantar la base donde están los datos que queremos agregar
+Finalmente podría pasar que necesitemos cruzar datos de dos bases diferentes según los valores de alguna variable, algo parecido al *BUSCARV()* en excel. Para estas operaciones, se usan las funciones conocidas como joins. Antes de joinear, vamos a levantar la base donde están los datos que queremos agregar
 
 ```{r}
-habitantes_bsas<-read.csv(paste0("../data/", clase, "/proyeccion_habitantes_bsas.csv"),encoding = "UTF-8")
+habitantes_bsas <- read.csv(paste0("../data/", clase, "/proyeccion_habitantes_bsas.csv"),encoding = "UTF-8")
 
+#nombres de las columnas
 colnames(habitantes_bsas)
 
+#cantidad de municipios
 length(unique(habitantes_bsas$Municipio))
 
 ```
-Algo muy importante es que el nombre de las variables de cada df, por las que queremos joinear, debe coincidir:
+Algo muy importante es que el nombre de las variables de cada df, por las que queremos joinear, debe coincidir. Es decir, ambos df deben tener al menos una columna compartida: 
 
 ```{r}
-barrios_populares_2<-barrios_populares%>%
-  rename(Municipio=`Departamento \\ Partido`)%>%
+barrios_populares_2 <- barrios_populares %>%
+  #renombramos la variable del df barrios populares
+  rename(Municipio =`Departamento \\ Partido`)%>%
+  #seleccionamos las columnas que usaremos en el join
   select(id_renabap, Barrio, Provincia, Municipio, Localidad,`Año de creación`)
 
 ```
 
 ### Left_Join()
 
-La función `left_join()` nos junta ambos df pero dándole prioridad a los valores del df de la izquierda, es decir, se queda con todos los valores del primer df y para los valores que no matchean con el segundo df, les asigna valores NA. Lo que obtenemos de esta manera es que no se modifiquen el número de filas o registros de nuestro primer df:
+La función `left_join()` nos junta ambos df pero dándole prioridad a los valores del df de la izquierda, es decir, se queda con todos los valores del primer df y para los valores que no matchean con el segundo df, les asigna valores NA. Así, logramos que no se modifique el número de filas o registros de nuestro primer df (izquierda):
 
 ```{r}
-barrios_populares_left_join<-barrios_populares_2%>%
+barrios_populares_left_join <- barrios_populares_2 %>%
   left_join(habitantes_bsas, by="Municipio")
 
 ```
@@ -432,7 +441,7 @@ barrios_populares_left_join<-barrios_populares_2%>%
 La función `right_join()` le da prioridad a los valores del df de la derecha:
 
 ```{r}
-barrios_populares_right_join<-barrios_populares_2%>%
+barrios_populares_right_join <- barrios_populares_2%>%
   right_join(habitantes_bsas, by="Municipio")
 
 ```
@@ -442,7 +451,7 @@ barrios_populares_right_join<-barrios_populares_2%>%
 La función `full_join()` nos junta ambos df sin importar si hay valores que no matchean. Para esos valores sin match, se les asigna un NA. De esta forma, es probable que aumenten el número de filas: 
 
 ```{r}
-barrios_populares_full_join<-barrios_populares_2%>%
+barrios_populares_full_join <- barrios_populares_2 %>%
   full_join(habitantes_bsas, by = "Municipio")
 
 ```
@@ -452,7 +461,7 @@ barrios_populares_full_join<-barrios_populares_2%>%
 La función `inner_join()` nos junta ambos df sólo para los valores que matchean, de esta forma es probable que se reduzcan las filas:
 
 ```{r}
-barrios_populares_inner_join<-barrios_populares_2%>%
+barrios_populares_inner_join <- barrios_populares_2 %>%
   inner_join(habitantes_bsas, by="Municipio")
 
 ```
@@ -462,12 +471,10 @@ barrios_populares_inner_join<-barrios_populares_2%>%
 La función `anti_join()` en vez de juntar df, nos elimina aquellos registros para los que encuentra match:
 
 ```{r}
-barrios_populares_anti_join<-barrios_populares_2%>%
-  anti_join(habitantes_bsas, by="Municipio")
+barrios_populares_anti_join <- barrios_populares_2 %>%
+  anti_join(habitantes_bsas, by ="Municipio")
 
 ```
-
-
 
 
 # Práctica
