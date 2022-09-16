@@ -10,6 +10,447 @@ output:
     code_folding: "show"
 ---
 
+# Limpieza y transformación de datos
+
+La clase pasada estuvimos introduciendonos en Tidyverse con algunas funciones básicas. Hoy vamos a profundizar en más funciones de limpieza y transformación de datos. 
+
+En principio, cargamos las librerías: 
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+Vamos a trabajar con datos de divorcios registrados en CABA desde el 2016 a la fecha. [Aquí](https://data.buenosaires.gob.ar/dataset/divorcios) podrán encontrar más información sobre el dataset: 
+
+```{r}
+#Importo datos
+clase <- "clase3"
+
+df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
+
+```
+
+## Glipmse()
+
+Previamente vimos distintas maneras de conocer la estructura del df, dplyr ofrece otra opción con `glimpse()`:
+
+```{r}
+glimpse(df_divorcios)
+```
+## Missing values
+
+Podemos observar que tenemos **11 columnas**, **31.700 filas**, y el tipo de datos que cada una contiene. Vemos que una columna no posee datos, podemos chequear si algún valor es nulo con `anyNA()` o podemos usar `apply()` de R{base} para saber la cantidad de datos nulos: 
+
+`apply()` tiene tres argumentos requeridos:
+
+X: matriz, objeto, dataframe
+MARGIN:  1: filas, 2: columnas, c(1, 2): filas y columnas
+FUN: función que queremos aplicar
+
+
+```{r}
+#TRUE = al menos algún valor nulo
+anyNA(df_divorcios$...5) 
+
+#aplicar suma a los valores NA de las columnas de df_divorcios 
+apply(is.na(df_divorcios), 2, sum)
+
+```
+
+Ante la existencia de valores nulos, podemos decidir eliminar las filas que contienen NA con `drop_na()`: 
+
+```{r}
+df_sinNA <- df_divorcios %>%
+  #quitemos la fila completamente NA
+  select (-5) %>% 
+  #eliminemos NA
+  drop_na()
+
+#chequeo
+apply(is.na(df_sinNA), 2, sum)
+
+```
+O bien, podemos elegir darles un valor específico con `replace_na()`: 
+
+```{r}
+
+df_reemplazado <- df_divorcios %>% 
+  mutate(DIA_MAT = replace_na(DIA_MAT,"Sin_dato"))
+
+#Chequeo: DIA_MAT ya no registra NA
+apply(is.na(df_reemplazado), 2, sum)
+
+```
+
+También podría ser de utilidad el `fill()` para imputar datos faltantes según la dirección especificada (down: desde arriba hacia abajo, up: desde abajo hacia arriba):
+
+```{r}
+#nos quedamos con las primeras diez filas
+df_ajustado <- df_divorcios %>% head(10)
+head(df_ajustado)
+
+df_ajustado <- df_ajustado %>% 
+                  fill(GENERO_1, 
+                       .direction = "up")
+#Chequeo
+head(df_ajustado)
+```
+
+En este caso, para avanzar en el análisis eliminaremos únicamente la columna que no registra datos: 
+
+```{r}
+df_divorcios  <- df_divorcios %>% 
+  select(-...5)
+
+names(df_divorcios)
+```
+
+## Summary()
+
+Ante un conjunto de datos, podemos querer conocer la estructura de las variables numéricas: 
+
+```{r}
+summary(df_divorcios)
+```
+Vemos que las variables no se ajustan al tipo de dato, por lo que lo modificaremos. Para ello, podemos utilizar otra función de la familia Applys, `lapply()`. 
+
+`lapply()` aplica una función a cada columna del df (o vector del objeto), y a diferencia de `apply()` no se aplica a nivel fila: 
+
+```{r}
+#Creamos el vector de las variables que modificaremos: 
+variables_numericas <- c("DIA_CREACION", "ANIO_CREACION", "DIA_MAT", "ANIO_MAT")
+
+#aplicamos la funcion as.numeric al conjunto de datos:
+df_divorcios[, variables_numericas] <- lapply(X = df_divorcios[, variables_numericas], 
+                                                FUN = as.numeric)
+#Chequeamos
+glimpse(df_divorcios)
+```
+
+## Case_when()
+
+También, pensando en el análisis o la visualización, podríamos necesitar recategorizar las variables. Para ello, podríamos usar `case_when()` junto a `mutate()`. 
+
+Por ejemplo, creemos una nueva variable que recodifique los nombres de los meses de divorcios en números:
+
+```{r}
+
+#valores únicos de la variable mes_creacion
+unique(df_divorcios$MES_CREACION)
+
+
+#creo nueva variable: NUM_MES_CREACION
+df_divorcios <- df_divorcios %>% 
+                  mutate(NUM_MES_CREACION = case_when(
+                    MES_CREACION == 'JAN' ~ '01',
+                    MES_CREACION == 'FEB' ~ '02',
+                    MES_CREACION == 'MAR' ~ '03',
+                    MES_CREACION == 'APR' ~ '04',
+                    MES_CREACION == 'MAY' ~ '05',
+                    MES_CREACION == 'JUN' ~ '06',
+                    MES_CREACION == 'JUL' ~ '07',
+                    MES_CREACION == 'AUG' ~ '08',
+                    MES_CREACION == 'SEP' ~ '09',
+                    MES_CREACION == 'OCT' ~ '10',
+                    MES_CREACION == 'NOV' ~ '11',
+                    MES_CREACION == 'DEC' ~ '12'
+                  ))
+
+#Chequeo
+head(df_divorcios)
+
+```
+
+
+## If_else()
+
+La recategorización de una variable también podríamos hacerla con `if_else()`. Esta función, además, resulta útil cuando queremos modificar un valor puntual de la variable. 
+
+Por ejemplo, si debieramos modificar APR y JAN en MES_CREACION: 
+
+```{r}
+
+#valores únicos de la variable mes_creacion
+unique(df_divorcios$MES_CREACION)
+
+#Modifico
+df_divorcios <- df_divorcios %>% 
+                        #reemplazo valores sobre la misma variable
+                        mutate(MES_CREACION = 
+                                            ifelse(MES_CREACION == "APR", "ABR",
+                                            ifelse(MES_CREACION == "JAN", "ENE",
+                                                   MES_CREACION)))
+
+
+```
+
+# Exploración de datos
+
+## Count ()
+
+Antes de indagar las variables numéricas, podemos conocer la distribución de las variables categóricas con `count()` que contabiliza los registros de cada categoría en una nueva columna:
+
+```{r}
+
+divorcios_mensuales <- df_divorcios %>% count(MES_CREACION,
+                                              #ordenamos los datos
+                                              sort = TRUE)
+divorcios_mensuales
+
+```
+
+## Table()
+
+Al contar registros estamos obteniendo una **distribución de frecuencias**. Podemos realizar la misma con `table()`:
+
+```{r}
+#noten qué pasa al encapsular la asignación en paréntesis: 
+(frecuencias <- table(df_divorcios$MES_CREACION))
+
+```
+## Prop.table()
+
+Además, podemos obtener la **distribución de frecuencias relativas** con `prop.table()`:
+
+```{r}
+prop.table(frecuencias)
+
+#puedo guardarlo en un df
+frec_relativas <- as.data.frame(prop.table(frecuencias))
+frec_relativas
+
+#frecuencias relativas porcentuales
+frec_relativas <- as.data.frame(prop.table(frecuencias)*100)
+frec_relativas
+
+#frecuencias relativas porcentuales con dos decimales
+frec_relativas <- as.data.frame(round(prop.table(frecuencias)*100,2))
+frec_relativas
+
+```
+
+## Cumsum()
+
+Por último, `cumsum()` permite obtener las **frecuencias acumuladas**: 
+
+```{r}
+#Absolutas acumuladas
+cumsum(frecuencias)
+
+#Porcentuales acumuladas
+cumsum(round(prop.table(frecuencias)*100,2))
+```
+
+Indaguemos la estructura de las **variables numéricas**:
+
+## Quantile()
+
+Los **cuartiles** pueden calcularse con `quantile()`:
+
+```{r}
+#Cantidad de divorcios por año
+divorcio_anual <- df_divorcios %>% 
+                      group_by(ANIO_CREACION) %>% 
+                          summarise(total = n())
+
+#Cuartiles
+quantile(divorcio_anual$total, prob = c(0.25, 0.5, 0.75, 1), na.rm = TRUE)
+
+```
+
+En el 50% de los años registrados hubo, al menos, más de 4081 divorcios. 
+
+## Mean()
+
+Podemos calcular el **promedio** de divorcios con `mean()`:
+
+```{r}
+
+mean(divorcio_anual$total)
+
+```
+Entre el 2015 y el 2022 se registra un promedio anual de 3963 divorcios. 
+
+## Sd() y Var()
+
+La **desviación estándar** de esta distribución se puede calcular con `sd()` y la **varianza** con `var()`: 
+
+```{r}
+
+sd(divorcio_anual$total, 
+     na.rm = TRUE)
+
+var(divorcio_anual$total, 
+    na.rm = T)
+
+```
+
+## Summary()
+
+`Summary()` proporciona un resumen de las **medidas de posición** de las variables numéricas: 
+
+
+```{r}
+#lo hacemos mediante el vector de variables numéricas construidas previamente
+
+summary(df_divorcios[, variables_numericas])
+
+```
+
+Podemos calcular la cantidad de años de casados de cada caso, creando una nueva variable, y obtener su resumen: 
+
+```{r}
+df_divorcios <- df_divorcios %>% 
+  mutate(anios_casados = ANIO_CREACION - ANIO_MAT)
+
+#resumen
+summary(df_divorcios$anios_casados)
+```
+## Bloxplot () y Hist()
+
+Podemos notar que -aunque estan próximas- la **mediana** < **media**, lo que evidencia un sesgo hacia la derecha (valores máximos).Esto puede quedar más claro con un **boxplot** mediante la función `boxplot()` o un histograma con `hist()`, ambos de R base: 
+
+```{r}
+#boxplot
+boxplot(df_divorcios$anios_casados, 
+        #título del gráfico
+        main = "Boxplot")
+
+#histograma
+hist(df_divorcios$anios_casados, 
+     #cortes
+     breaks = 10000, 
+     main = "Histograma")
+```
+
+Em ambos gráficos podemos notar la existencia de **valores atípicos** que afectan la distribución de la variable. Con los datos del boxplot, podremos saber cuáles son estos valores (caen por fuera de los umbrales):
+
+```{r}
+
+#cuartiles
+summary(df_divorcios$anios_casados)
+
+#rango intercuartil (q3 - q1): centro del boxplot
+IQR(df_divorcios$anios_casados, na.rm = T)
+
+#valores que caen por fuera de (umbral máximo: 27+ 1.5) y (umbral mínimo: 9 - 1.5)
+outliers <- boxplot(df_divorcios$anios_casados)$out %>% as.data.frame()
+outliers
+
+```
+Hay 130 casos que sesgan la distribución de los datos. Si bien es importante analizar qué decisión tomar con estas filas, podríamos decidir quitarlos para avanzar en un análisis estadístico. Para ello podríamos utilizar `between()` de Dplyr: 
+
+```{r}
+df_sin_outliers <- df_divorcios %>% 
+                    filter(between(anios_casados, 7.5, 28.5))
+
+#chequeamos distribución
+table(df_sin_outliers$anios_casados)
+
+#probamos realizar nuevamente el gráfico
+boxplot(df_sin_outliers$anios_casados, 
+        main = "Boxplot")
+
+```
+
+Podríamos chequear los nuevos valores extremos. Para acceder al valor máximo lo hacemos con `filter()` y `max()`: 
+
+```{r}
+
+df_sin_outliers %>% 
+  filter(anios_casados == max(anios_casados))
+
+#12 casos que registran la mayor cantidad de años de casadxs
+```
+
+Valor mínimo con `min()`: 
+
+```{r}
+df_sin_outliers %>% 
+  filter(anios_casados == min(anios_casados))
+
+#997 casos con 8 años de casadxs
+
+```
+
+# Reorganización de datos
+
+Por último, podríamos querer modificar la organización de los datos para realizar un join, visualizar o exportarlas a otro formato. 
+
+## Spread ()
+
+Si quisieramos pasar los datos de filas a columnas, utilizaríamos  `Spread()`. 
+
+Por ejemplo, volvamos a la tabla de divorcios anuales: 
+
+```{r}
+divorcio_anual
+
+div_anual_col <- spread(divorcio_anual, 
+                        #columna a colapsar
+                        ANIO_CREACION, 
+                        #valores 
+                        total)
+div_anual_col
+
+```
+
+## Gather()
+
+En cambio, si quisieramos pasar de columnas a filas utilizaríamos `gather()`:
+
+```{r}
+div_anual_fil <- gather(div_anual_col, 
+                        #nuevas columnas 
+                        "anios", "total", 
+                        #columnas que deberán colapsarse
+                        1:8)
+
+div_anual_fil
+```
+
+
+
+#faltaría agregar los paquetes de resumenes estadísticos como "yapa", sumar lo de pivot wider/longer  y quizás plot no? que vean base esta clase y la 4 todo viz copada
+
+
+# Práctica
+
+1. Construí un df con la distribución de categorías para la variable GENERO_1: 
+
+```{r}
+
+```
+
+2. Elimina los valores nulos del DF y volvé a calcular la distribución de la variable GENERO_1: 
+
+```{r}
+
+```
+
+
+3. Filtrá los casos que hayan tenido menos de 5 años de casadxs y graficá la distribución anual de esos divorcios en un histograma: 
+
+```{r}
+
+```
+
+
+4. Reemplazá los valores NA de la columna GENERO_2 con "Sin dato": 
+
+```{r}
+
+```
+
+5. Asigná a un df la cantidad de casamientos por año. ¿Cuál es el promedio anual?
+
+```{r}
+
+```
+
+6. Transformá el df creado en el punto anterior, pasando los años a las columnas  del df:
+
 ```{r}
 
 ```
