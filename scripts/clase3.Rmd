@@ -108,10 +108,11 @@ names(df_divorcios)
 
 ## Summary()
 
-Ante un conjunto de datos, podemos querer conocer la estructura de las variables numéricas: 
+Pasemos a conocer la estructura de las variables numéricas: 
 
 ```{r}
 summary(df_divorcios)
+
 ```
 Vemos que las variables no se ajustan al tipo de dato, por lo que lo modificaremos. Para ello, podemos utilizar otra función de la familia Applys, `lapply()`. 
 
@@ -307,9 +308,11 @@ df_divorcios <- df_divorcios %>%
 #resumen
 summary(df_divorcios$anios_casados)
 ```
+
+
 ## Bloxplot () y Hist()
 
-Podemos notar que -aunque estan próximas- la **mediana** < **media**, lo que evidencia un sesgo hacia la derecha (valores máximos).Esto puede quedar más claro con un **boxplot** mediante la función `boxplot()` o un histograma con `hist()`, ambos de R base: 
+Se puede ver que -aunque estan próximas- la **mediana** < **media**, lo que evidencia un sesgo hacia la derecha (valores máximos).Esto puede quedar más claro con un **boxplot** mediante la función `boxplot()` o un histograma con `hist()`, ambos de R base: 
 
 ```{r}
 #boxplot
@@ -367,16 +370,26 @@ df_sin_outliers %>%
 Valor mínimo con `min()`: 
 
 ```{r}
-df_sin_outliers %>% 
-  filter(anios_casados == min(anios_casados))
+(minimos <- df_sin_outliers %>% 
+  filter(anios_casados == min(anios_casados)))
 
 #997 casos con 8 años de casadxs
 
 ```
+La función  `plot()` de R permite realizar otros gráficos. 
+
+```{r}
+
+glimpse(df_sin_outliers)
+
+
+```
+#faltaría agregar plot no
+
 
 # Reorganización de datos
 
-Por último, podríamos querer modificar la organización de los datos para realizar un join, visualizar o exportarlas a otro formato. 
+Por último, podríamos querer modificar la organización de los datos para realizar un join, visualizar o exportarlos a otro formato. 
 
 ## Spread ()
 
@@ -410,9 +423,31 @@ div_anual_fil <- gather(div_anual_col,
 div_anual_fil
 ```
 
+Con los mismos objetivon puede emplearse [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) y [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). Pueden indagar ambas funciones para ver a cuál se asemeja más cada una. 
 
 
-#faltaría agregar los paquetes de resumenes estadísticos como "yapa", sumar lo de pivot wider/longer  y quizás plot no? que vean base esta clase y la 4 todo viz copada
+## YAPA
+
+Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools: 
+
+```{r}
+#install.packages("skimr")
+library(skimr)
+
+#se obtiene  un tibble por tipo de variables
+tabla <- skim(df_divorcios)
+tabla
+
+
+#install.packages("DescTools")
+library(DescTools)
+
+#resumen descriptivo
+Desc(df_divorcios)
+
+```
+
+
 
 
 # Práctica
