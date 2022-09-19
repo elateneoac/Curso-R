@@ -24,8 +24,14 @@ library(readxl)
 Vamos a trabajar con datos de divorcios registrados en CABA desde el 2016 a la fecha. [Aquí](https://data.buenosaires.gob.ar/dataset/divorcios) podrán encontrar más información sobre el dataset: 
 
 ```{r}
-#Importo datos
+# Defino la clase de hoy
+
 clase <- "clase3"
+
+```
+
+```{r}
+# Levanto data
 
 df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
 
@@ -310,7 +316,7 @@ summary(df_divorcios$anios_casados)
 ```
 
 
-## Bloxplot () y Hist()
+## Boxplot () y Hist()
 
 Se puede ver que -aunque estan próximas- la **mediana** < **media**, lo que evidencia un sesgo hacia la derecha (valores máximos).Esto puede quedar más claro con un **boxplot** mediante la función `boxplot()` o un histograma con `hist()`, ambos de R base: 
 
@@ -380,11 +386,18 @@ La función  `plot()` de R permite realizar otros gráficos.
 
 ```{r}
 
-glimpse(df_sin_outliers)
-
+plot(factor(df_sin_outliers$MES_MAT), 
+     main="Cantidad de divorcios por mes")
 
 ```
-#faltaría agregar plot no
+
+La función `pie()` permite dibujar un gráfico de torta (R es poco amigable con este tipo de gráficos)
+
+```{r}
+pie(divorcio_anual$total, 
+    labels = divorcio_anual$ANIO_CREACION, 
+    main = "Distribución de divorcios por año")
+```
 
 
 # Reorganización de datos
@@ -423,23 +436,25 @@ div_anual_fil <- gather(div_anual_col,
 div_anual_fil
 ```
 
-Con los mismos objetivon puede emplearse [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) y [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). Pueden indagar ambas funciones para ver a cuál se asemeja más cada una. 
+Con los mismos objetivos puede emplearse [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) y [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). Pueden indagar ambas funciones para ver a cuál se asemeja más cada una. 
 
 
 ## YAPA
 
-Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools: 
+Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools o con `create_report()` del paquete DataExplorer: 
 
 ```{r}
-#install.packages("skimr")
+# install.packages("skimr")
 library(skimr)
 
 #se obtiene  un tibble por tipo de variables
 tabla <- skim(df_divorcios)
 tabla
 
+```
 
-#install.packages("DescTools")
+```{r}
+# install.packages("DescTools")
 library(DescTools)
 
 #resumen descriptivo
@@ -447,7 +462,13 @@ Desc(df_divorcios)
 
 ```
 
+```{r}
+# install.packages("DataExplorer")
+library(DataExplorer)
 
+create_report(df_divorcios)
+
+```
 
 
 # Práctica
