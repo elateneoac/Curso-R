@@ -33,6 +33,10 @@ Y lo segundo que vamos a hacer es cargar el dataset que vamos a usar. Este datas
 
 clase<-"clase4"
 
+```
+
+```{r}
+
 # base <- read.csv("https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-justicia-y-seguridad/delitos/delitos_2019.csv",
 #                  encoding = "UTF-8")
 file.exists(paste0("../data/",clase,"/delitos_2019.csv"))
@@ -199,8 +203,8 @@ plot_delitos_por_tipo
 ```
 
 9-Cambiemos los colores de los puntos
-https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
-https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+[https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html]
 
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
@@ -391,15 +395,15 @@ ggsave(filename = "1 Cantidad de delitos por comuna.png",
        units = "cm")
 ```
 
-## 7.1 YAPA 1
+## 7.1 YAPA 1: Plotly()
 
 Todos estos gráficos podemos decir que son "estáticos"en contraposición a lo que vamos a hacer a continuación: un gráfico "dinámico". 
 
 Primero cargamos la libería
-https://plotly.com/r/
+[https://plotly.com/r/]
 
 ```{r}
-#install.packages("pltly")
+#install.packages("plotly")
 library(plotly)
 ```
 
@@ -410,7 +414,38 @@ ggplotly(plot_delitos_por_comuna, tooltip = c("tipo", "cantidad"))
 
 ```
 
-## 7.2 YAPA 2
+## 7.2 YAPA 2: Highcharter()
+
+Otro paquete muy útil para generar gráficos dinámicos es Highcharter
+[https://www.highcharts.com/blog/tutorials/highcharts-for-r-users/]
+
+```{r}
+# install.packages("highcharter")
+library(highcharter)
+
+plot_delitos_por_tipo_2<-hchart(object = base%>%
+                                  filter(barrio=="Palermo"),
+                                type="scatter", 
+                                hcaes(x=long, y=lat, group=tipo_delito))
+plot_delitos_por_tipo_2
+
+```
+
+```{r}
+plot_delitos_por_comuna_2<-hchart(object = base%>%
+                                    group_by(comuna)%>%
+                                    summarise(cantidad=n()),
+                                  type = "bar",
+                                  hcaes(x=comuna, 
+                                        y=cantidad, 
+                                        color=comuna))%>%
+  hc_add_theme(hc_theme_economist())
+plot_delitos_por_comuna_2
+
+```
+
+
+## 7.3 YAPA 3: Gganimate()
 
 Otra forma de generar gráficos "dinámicos" es creando GIFs.
 
