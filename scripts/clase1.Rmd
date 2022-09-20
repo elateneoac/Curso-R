@@ -128,7 +128,7 @@ edad_exacta <- 67.6
 edad_exacta
 ```
 
-## Cadenas de texto (Character):
+## Cadenas de texto (Strings o Character):
 
 ```{r}
 provincia <-  "Buenos Aires"
@@ -153,6 +153,21 @@ persona_identificada <- TRUE
 persona_identificada
 
 ```
+
+## Fechas (Datetime, POSIXct y POSIXlt)
+
+```{r}
+
+fecha_hoy<-Sys.Date()
+fecha_hoy
+
+hora_hoy<-Sys.time()
+hora_hoy
+
+```
+
+Los valores tipo Date sólo nos indican la fecha, los valores tipo POSIXct y/o POSIXlt nos pueden indicar además la hora. Si bien parecen **strings**, no lo son y las operaciones que se pueden hacer con estos valores son distintas a las que se pueden hacer con strings. Un paquete muy útil para trabajar este tipo de datos es `lubridate()` y lo veremos en próximas clases.
+
 
 Además, existen objetos con valores perdidos o nulos:
 
@@ -179,6 +194,12 @@ class(provincia)
 
 edad <- as.character(edad)
 class(edad)
+
+hora_hoy<-as.character(hora_hoy)
+class(hora_hoy)
+
+hora_hoy<-as.POSIXct(hora_hoy)
+class(hora_hoy)
 
 ```
 
