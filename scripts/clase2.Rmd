@@ -68,8 +68,8 @@ encuestas <- cbind(primer_cuatrimestre, segundo_cuatrimestre)
 encuestas
 
 #Cada vector es una fila
-cantidades <- rbind(primer_cuatrimestre, segundo_cuatrimestre)
-cantidades
+meses <- rbind(primer_cuatrimestre, segundo_cuatrimestre)
+meses
 
 ```
 
@@ -96,7 +96,7 @@ Poseen el formato de una tabla:  *cada fila corresponde a un caso, sujeto, obser
 
 ```{r}
 #Vectores
-nombre <- c("Zoe", "Ana", "Lucas", "Mariano")
+nombre <- c("Zoe", "Ana", "Lucas", "Lucas")
 apellido <- c("Sanchez", "Garcia", "Fernandez", "Gonzalez")
 fecha_nacimiento <- c("1986-06-14", "1994-05-07", "1958-12-25", "1983-09-19")
 idpersona <- c(1889, 55262, 77893, 62294)
@@ -139,7 +139,7 @@ names(listado)
 
 ```
 
-Acceder a las primeras y útlimas filas con `head()`y `tail()`:
+Acceder a las primeras y últimas filas con `head()`y `tail()`:
 
 ```{r}
 #primeras filas
@@ -252,7 +252,7 @@ encuesta_movilidad <-  read_excel(paste0("../data/",clase, "/Hogar_ENMODO18.xlsx
 
 También, puedo querer exportar los datos trabajados en R a otros formato: 
 
-A un archiovo **.csv**:
+A un archivo **.csv**:
 
 ```{r}
 write.csv(registro, paste0("../data/", clase, "/registro.csv"), row.names = F, fileEncoding = "UTF-8")
@@ -422,7 +422,9 @@ barrios_populares_2 <- barrios_populares %>%
   #renombramos la variable del df barrios populares
   rename(Municipio =`Departamento \\ Partido`)%>%
   #seleccionamos las columnas que usaremos en el join
-  select(id_renabap, Barrio, Provincia, Municipio, Localidad,`Año de creación`)
+  select(id_renabap, Barrio, Provincia, Municipio, Localidad,`Año de creación`) %>% 
+  #filtro barrios de la prov de Buenos Aires
+  filter(Provincia == "Buenos Aires")
 
 ```
 
