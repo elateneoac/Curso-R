@@ -34,6 +34,7 @@ clase <- "clase3"
 # Levanto data
 
 df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
+names(df_divorcios)
 
 ```
 
@@ -42,8 +43,11 @@ df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
 Previamente vimos distintas maneras de conocer la estructura del df, dplyr ofrece otra opción con `glimpse()`:
 
 ```{r}
+
 glimpse(df_divorcios)
+
 ```
+
 ## Missing values
 
 Podemos observar que tenemos **11 columnas**, **31.700 filas**, y el tipo de datos que cada una contiene. Vemos que una columna no posee datos, podemos chequear si algún valor es nulo con `anyNA()` o podemos usar `apply()` de R{base} para saber la cantidad de datos nulos: 
@@ -69,7 +73,7 @@ Ante la existencia de valores nulos, podemos decidir eliminar las filas que cont
 ```{r}
 df_sinNA <- df_divorcios %>%
   #quitemos la fila completamente NA
-  select (-5) %>% 
+  select (-5) %>%
   #eliminemos NA
   drop_na()
 
@@ -89,7 +93,7 @@ apply(is.na(df_reemplazado), 2, sum)
 
 ```
 
-También podría ser de utilidad el `fill()` para imputar datos faltantes según la dirección especificada (down: desde arriba hacia abajo, up: desde abajo hacia arriba):
+**YAPA**: También podría ser de utilidad el `fill()` para imputar datos faltantes según la dirección especificada (down: desde arriba hacia abajo, up: desde abajo hacia arriba):
 
 ```{r}
 #nos quedamos con las primeras diez filas
@@ -112,23 +116,30 @@ df_divorcios  <- df_divorcios %>%
 names(df_divorcios)
 ```
 
-## Summary()
-
-Pasemos a conocer la estructura de las variables numéricas: 
+Volvamos al dataframe, y pongamos atención a la estructura de las variables numéricas mediante un `summary()`: 
 
 ```{r}
 summary(df_divorcios)
 
 ```
-Vemos que las variables no se ajustan al tipo de dato, por lo que lo modificaremos. Para ello, podemos utilizar otra función de la familia Applys, `lapply()`. 
+
+Vemos que las variables no se ajustan al tipo de dato, por lo que lo modificaremos. Para ello, podemos modificar una a una las variables; o utilizar otra función de la familia Applys, `lapply()`, para transformarlas de manera conjunta. 
 
 `lapply()` aplica una función a cada columna del df (o vector del objeto), y a diferencia de `apply()` no se aplica a nivel fila: 
 
 ```{r}
+
+## opción 1: aplicamos la funcion as.numeric a cada variable
+# df_divorcios$DIA_CREACION <- as.numeric(df_divorcios$DIA_CREACION)
+# df_divorcios$ANIO_CREACION <- as.numeric(df_divorcios$ANIO_CREACION)
+
+
+## opción 2: aplicamos la funcion as.numeric al conjunto de variables
+
 #Creamos el vector de las variables que modificaremos: 
 variables_numericas <- c("DIA_CREACION", "ANIO_CREACION", "DIA_MAT", "ANIO_MAT")
 
-#aplicamos la funcion as.numeric al conjunto de datos:
+#aplicamos la función as.numeric() con lapply()
 df_divorcios[, variables_numericas] <- lapply(X = df_divorcios[, variables_numericas], 
                                                 FUN = as.numeric)
 #Chequeamos
@@ -165,7 +176,7 @@ df_divorcios <- df_divorcios %>%
                   ))
 
 #Chequeo
-head(df_divorcios)
+head(df_divorcios %>% select(MES_CREACION, NUM_MES_CREACION))
 
 ```
 
@@ -174,7 +185,7 @@ head(df_divorcios)
 
 La recategorización de una variable también podríamos hacerla con `if_else()`. Esta función, además, resulta útil cuando queremos modificar un valor puntual de la variable. 
 
-Por ejemplo, si debieramos modificar APR y JAN en MES_CREACION: 
+Por ejemplo, si debieramos modificar *APR* y *JAN* en *MES_CREACION*: 
 
 ```{r}
 
