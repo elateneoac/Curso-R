@@ -12,7 +12,7 @@ output:
 
 # Limpieza y transformación de datos
 
-La clase pasada estuvimos introduciendonos en Tidyverse con algunas funciones básicas. Hoy vamos a profundizar en más funciones de limpieza y transformación de datos. 
+La clase pasada estuvimos introduciendonos en Tidyverse con algunas funciones básicas. Hoy vamos a profundizar en más funciones de limpieza, transformación y exploración de datos. 
 
 En principio, cargamos las librerías: 
 
@@ -28,15 +28,12 @@ Vamos a trabajar con datos de divorcios registrados en CABA desde el 2016 a la f
 
 clase <- "clase3"
 
-```
-
-```{r}
 # Levanto data
-
 df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
 names(df_divorcios)
 
 ```
+
 
 ## Glipmse()
 
@@ -207,7 +204,7 @@ df_divorcios <- df_divorcios %>%
 
 ## Count ()
 
-Antes de indagar las variables numéricas, podemos conocer la distribución de las variables categóricas con `count()` que contabiliza los registros de cada categoría en una nueva columna:
+Antes de indagar las variables numéricas, podemos conocer la *distribución de las variables categóricas* con `count()` que contabiliza los registros de cada categoría en una nueva columna:
 
 ```{r}
 
@@ -354,7 +351,7 @@ summary(df_divorcios$anios_casados)
 #rango intercuartil (q3 - q1): centro del boxplot
 IQR(df_divorcios$anios_casados, na.rm = T)
 
-#valores que caen por fuera de (umbral máximo: 27+ 1.5) y (umbral mínimo: 9 - 1.5)
+#valores que caen por fuera de (umbral máximo: 27 + 1.5) y (umbral mínimo: 9 - 1.5)
 outliers <- boxplot(df_divorcios$anios_casados)$out %>% as.data.frame()
 outliers
 
@@ -381,7 +378,7 @@ Podríamos chequear los nuevos valores extremos. Para acceder al valor máximo l
 df_sin_outliers %>% 
   filter(anios_casados == max(anios_casados))
 
-#12 casos que registran la mayor cantidad de años de casadxs
+#659 casos que registran la mayor cantidad de años de casadxs
 ```
 
 Valor mínimo con `min()`: 
@@ -393,21 +390,35 @@ Valor mínimo con `min()`:
 #997 casos con 8 años de casadxs
 
 ```
-La función  `plot()` de R permite realizar otros gráficos. 
+## YAPA
+
+Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools o con `create_report()` del paquete DataExplorer: 
 
 ```{r}
+# install.packages("skimr")
+library(skimr)
 
-plot(factor(df_sin_outliers$MES_MAT), 
-     main="Cantidad de divorcios por mes")
+#se obtiene  un tibble por tipo de variables
+tabla <- skim(df_divorcios)
+tabla
 
 ```
 
-La función `pie()` permite dibujar un gráfico de torta (R es poco amigable con este tipo de gráficos)
+```{r}
+# install.packages("DescTools")
+library(DescTools)
+
+#resumen descriptivo
+Desc(df_divorcios)
+
+```
 
 ```{r}
-pie(divorcio_anual$total, 
-    labels = divorcio_anual$ANIO_CREACION, 
-    main = "Distribución de divorcios por año")
+# install.packages("DataExplorer")
+library(DataExplorer)
+
+create_report(df_divorcios)
+
 ```
 
 
@@ -449,37 +460,6 @@ div_anual_fil
 
 Con los mismos objetivos puede emplearse [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) y [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). Pueden indagar ambas funciones para ver a cuál se asemeja más cada una. 
 
-
-## YAPA
-
-Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools o con `create_report()` del paquete DataExplorer: 
-
-```{r}
-# install.packages("skimr")
-library(skimr)
-
-#se obtiene  un tibble por tipo de variables
-tabla <- skim(df_divorcios)
-tabla
-
-```
-
-```{r}
-# install.packages("DescTools")
-library(DescTools)
-
-#resumen descriptivo
-Desc(df_divorcios)
-
-```
-
-```{r}
-# install.packages("DataExplorer")
-library(DataExplorer)
-
-create_report(df_divorcios)
-
-```
 
 
 # Práctica
