@@ -28,11 +28,15 @@ Vamos a trabajar con datos de divorcios registrados en CABA desde el 2016 a la f
 
 clase <- "clase3"
 
+```
+
+```{r}
 # Levanto data
 df_divorcios <-read_excel(paste0("../data/", clase, "/dataset_divorcios.xlsx"))
 names(df_divorcios)
 
 ```
+
 
 
 ## Glipmse()
