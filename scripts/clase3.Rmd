@@ -57,10 +57,12 @@ FUN: función que queremos aplicar
 
 
 ```{r}
+#opción 1: aplicar la función anyNA a cada variable
 #TRUE = al menos algún valor nulo
 anyNA(df_divorcios$...5) 
+anyNA(df_divorcios$GENERO_1)
 
-#aplicar suma a los valores NA de las columnas de df_divorcios 
+#opción 2: aplicar la suma de valores NA a todas las columnas del df
 apply(is.na(df_divorcios), 2, sum)
 
 ```
@@ -81,7 +83,10 @@ apply(is.na(df_sinNA), 2, sum)
 O bien, podemos elegir darles un valor específico con `replace_na()`: 
 
 ```{r}
+#chequeo: dia_mat tiene 737 NA
+apply(is.na(df_divorcios), 2, sum)
 
+#reemplazo
 df_reemplazado <- df_divorcios %>% 
   mutate(DIA_MAT = replace_na(DIA_MAT,"Sin_dato"))
 
@@ -90,7 +95,8 @@ apply(is.na(df_reemplazado), 2, sum)
 
 ```
 
-**YAPA**: También podría ser de utilidad el `fill()` para imputar datos faltantes según la dirección especificada (down: desde arriba hacia abajo, up: desde abajo hacia arriba):
+### YAPA: fill()
+También podría ser de utilidad el `fill()` para imputar datos faltantes según la dirección especificada (down: desde arriba hacia abajo, up: desde abajo hacia arriba):
 
 ```{r}
 #nos quedamos con las primeras diez filas
@@ -120,7 +126,7 @@ summary(df_divorcios)
 
 ```
 
-Vemos que las variables no se ajustan al tipo de dato, por lo que lo modificaremos. Para ello, podemos modificar una a una las variables; o utilizar otra función de la familia Applys, `lapply()`, para transformarlas de manera conjunta. 
+Vemos que las variables son de tipo character y no numericas, por lo que lo modificaremos. Para ello, podemos modificar una a una las variables; o utilizar otra función de la familia Applys, `lapply()`, para transformarlas de manera conjunta. 
 
 `lapply()` aplica una función a cada columna del df (o vector del objeto), y a diferencia de `apply()` no se aplica a nivel fila: 
 
@@ -199,6 +205,33 @@ df_divorcios <- df_divorcios %>%
 
 
 ```
+
+### YAPA: lubridate
+A la hora de transformar y explorar datos que contengan fechas u horas, el paquete [paquete Lubridate](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_lubridate.pdf) resulta por demás útil. 
+```{r}
+#install.packages("lubridate")
+library(lubridate)
+
+#Transformo fecha de creación del matrimonio a tipo POSIXct
+df_divorcios <- df_divorcios %>% mutate(FECHA_CREACION = dmy_hms(FECHA_CREACION))
+head(df_divorcios)
+
+#extraigo los días , años y meses del casamiento
+df_divorcios <- df_divorcios %>% mutate(dia_crea = day(FECHA_CREACION),
+                                        anio_crea_n = year(FECHA_CREACION),
+                                        mes_crea = month(FECHA_CREACION))
+head(select(df_divorcios, c(1,12:14)))
+     
+#fecha actual
+fecha_actual <- Sys.Date()
+anio_actual <- year(Sys.Date())
+
+#calculo tiempo desde casamiento a la fecha actual
+df_divorcios <- df_divorcios %>% mutate(ant_actualidad = years(anio_actual- anio_crea_n))
+head(df_divorcios)
+
+```
+
 
 # Exploración de datos
 
@@ -301,9 +334,7 @@ var(divorcio_anual$total,
 
 ```
 
-## Summary()
-
-`Summary()` proporciona un resumen de las **medidas de posición** de las variables numéricas: 
+Además, podemos recurrir a `summary()` que proporciona un resumen de las **medidas de posición** de las variables numéricas: 
 
 
 ```{r}
@@ -356,7 +387,7 @@ outliers <- boxplot(df_divorcios$anios_casados)$out %>% as.data.frame()
 outliers
 
 ```
-Hay 130 casos que sesgan la distribución de los datos. Si bien es importante analizar qué decisión tomar con estas filas, podríamos decidir quitarlos para avanzar en un análisis estadístico. Para ello podríamos utilizar `between()` de Dplyr: 
+Hay *130 casos* (0.4%) que sesgan la distribución de los datos. Si bien es importante analizar qué decisión tomar con estas filas, podríamos decidir quitarlos para avanzar en un análisis estadístico. Para ello podríamos utilizar `between()` de Dplyr: 
 
 ```{r}
 df_sin_outliers <- df_divorcios %>% 
@@ -390,9 +421,9 @@ Valor mínimo con `min()`:
 #997 casos con 8 años de casadxs
 
 ```
-## YAPA
+## YAPA: reportes estadísticos
 
-Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr o con `Desc()` del paquete DesTools o con `create_report()` del paquete DataExplorer: 
+Para obtener resúmenes estadísticos, pueden probar con la función `skim()` del paquete Skimr, con `Desc()` del paquete DesTools, o con `create_report()` del paquete DataExplorer: 
 
 ```{r}
 # install.packages("skimr")
@@ -464,7 +495,7 @@ Con los mismos objetivos puede emplearse [`pivot_longer()`](https://tidyr.tidyve
 
 # Práctica
 
-1. Construí un df con la distribución de categorías para la variable GENERO_1: 
+1. Construí un df con la distribución de frecuencias de la variable GENERO_1: 
 
 ```{r}
 
