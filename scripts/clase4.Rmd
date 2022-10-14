@@ -22,7 +22,6 @@ En la clase de hoy vamos a ver cómo generar gráficos bonitos (o al menos eso i
 Lo primero que vamos a hacer es cargar las librerías
 
 ```{r}
-#install.packages("tidyverse")
 library(tidyverse)
 library(lubridate)
 ```
@@ -39,9 +38,9 @@ clase<-"clase4"
 
 # base <- read.csv("https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-justicia-y-seguridad/delitos/delitos_2019.csv",
 #                  encoding = "UTF-8")
-file.exists(paste0("../data/",clase,"/delitos_2019.csv"))
+file.exists(paste0("../data/", clase, "/delitos_2019.csv"))
 
-base<-read.csv(file = paste0("../data/",clase,"/delitos_2019.csv"), encoding = "UTF-8")
+base<-read.csv(file = paste0("../data/", clase, "/delitos_2019.csv"), encoding = "UTF-8")
 
 ```
 
@@ -129,7 +128,7 @@ ggplot()
 
 2-Definimos los ejes x,y (x=lat, y=lon) y al objeto que va a ser nuestro grafico
 ```{r}
-plot_delitos_por_tipo<-ggplot(base,aes(x=long, y=lat))
+plot_delitos_por_tipo<-ggplot(base, aes(x=long, y=lat))
 
 plot_delitos_por_tipo
 ```
@@ -147,7 +146,7 @@ plot_delitos_por_tipo
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
                                 filter(barrio=="Palermo"),
-                              aes(x=long, y=lat,color=tipo_delito))+
+                              aes(x=long, y=lat, color=tipo_delito))+
   geom_jitter()
 plot_delitos_por_tipo
 ```
@@ -157,7 +156,7 @@ plot_delitos_por_tipo
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
                                 filter(barrio=="Palermo"),
-                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+                              aes(x=long, y=lat, color=tipo_delito, shape=subtipo_delito))+
   geom_point()
 plot_delitos_por_tipo
 ```
@@ -167,7 +166,7 @@ plot_delitos_por_tipo
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
                                 filter(barrio=="Palermo"),
-                              aes(x=long, y=lat,color=tipo_delito, shape=subtipo_delito))+
+                              aes(x=long, y=lat, color=tipo_delito, shape=subtipo_delito))+
   geom_point(size=0.5)
 plot_delitos_por_tipo
 ```
@@ -265,24 +264,32 @@ delitos_por_comuna<-base%>%
   ungroup()%>%
   filter(!is.na(comuna))%>% #quitamos los valores no asignados (NA)
   mutate(comuna=as.factor(comuna)) #tranformamos a factor la variable comuna
+unique(base$tipo_delito)
 
 plot_delitos_por_comuna<-ggplot(delitos_por_comuna, 
                            aes(x=reorder(comuna,cantidad),#reordenamos de mayor a menor
                                y=cantidad, 
-                               fill=tipo_delito))+
+                               fill=factor(tipo_delito, 
+                                           levels = c("Robo (con violencia)",
+                                                      "Hurto (sin violencia)",
+                                                      "Lesiones",
+                                                      "Homicidio"))))+
   # geom_bar(stat="identity", position = "stack")+
   geom_bar(stat="identity", position = "dodge")+
   # geom_bar(stat="identity", position = "fill")+
   coord_flip()+ #"volteamos" el grafico
+  # scale_y_continuous(n.breaks = 10)+
   theme_minimal()+ #usamos un tema mínimo
-  theme(axis.text.y = element_text(size = 20))+ #agrandamos los numeros
+  theme(axis.text.y = element_text(size = 17))+ #agrandamos los numeros
   labs(x="Comuna", y="Cantidad",
        title = "Cantidad de delitos por comuna",
-       caption = "Fuente:datos abiertos GCBA") #agregamos labels
+       caption = "Fuente:datos abiertos GCBA",
+       fill="Tipo de delito") #agregamos labels
 plot_delitos_por_comuna
 ```
 
 ### 4.3 linebar - Gráfico de líneas
+
 ```{r}
 
 delitos_por_fecha<-base%>%
@@ -329,7 +336,9 @@ base_delitos_fecha_2<-base%>%
 
 plot_delitos_mes<-ggplot(base_delitos_fecha_2, aes(x=mes, y=cantidad, color=tipo_delito))+
   geom_line()+
-  geom_point()
+  geom_point()+
+  # theme_void()
+  ggthemes::theme_economist()
 plot_delitos_mes
 
 ```
@@ -338,8 +347,10 @@ Ahora vamos a manipular el eje X de un plot anterior
 
 ```{r}
 plot_delitos_por_fecha<-plot_delitos_por_fecha+
-  scale_x_date(date_breaks = "1 month",
-  date_labels = "%Y %b")
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y %b")+
+  # scale_x_date(date_breaks = "3 month", date_labels = "%Y %B %e")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 plot_delitos_por_fecha
 ```
 
@@ -452,8 +463,11 @@ Otra forma de generar gráficos "dinámicos" es creando GIFs.
 Primero cargamos la librería
 
 ```{r}
+# install.packages("gganimate")
+# install.packages("gifski")
+# install.packages("png")
+library(gifski)
 library(gganimate)
-library(runner)
 ```
 
 Y ahora la magia
@@ -476,8 +490,9 @@ base_comuna_fecha<-base%>%
   summarise(cantidad=n())%>%
   filter(!is.na(comuna))%>%
   arrange(comuna)%>%
-  mutate(suma=sum_run(x = cantidad,k=1, idx = comuna),
-         comuna=as.factor(comuna))%>%
+  mutate(suma=cumsum(cantidad))%>%
+  # mutate(suma=sum_run(x = cantidad, k=1, idx = comuna),
+  #        comuna=as.factor(comuna))%>%
   select(mes,comuna,suma)
   # ungroup()
 
@@ -493,5 +508,37 @@ plot_crecimiento<-ggplot(base_comuna_fecha, aes(x=reorder(comuna,suma), suma, fi
   # ease_aes('sine-in-out')+
   labs(title = "Cantidad de delitos")
 plot_crecimiento
+```
+
+## 8 Práctica
+
+1. Quiero ver los 10 barrios con mayor cantidad de homicidos
+
+```{r}
+
+```
+
+2. Quiero ver la evolución de delitos a lo largo del año de la Comuna 1 vs la Comuna 3
+
+```{r}
+
+```
+
+3. Quiero ver los delitos que ocurren por horario y día según cada tipo de delito
+
+```{r}
+
+```
+
+4. Quiero ver cuál es el día de la semana en el que ocurren más delitos (pista: usar lubridate para tranformar la variable fecha y que nos muestre el día de la semana)
+
+```{r}
+
+```
+
+5- Quiero ver la ubicación de los robos en el barrio Agronomía
+
+```{r}
+
 ```
 
