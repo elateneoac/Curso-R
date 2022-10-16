@@ -2,7 +2,8 @@
 title: "Introducción al análisis de datos con R: Clase 4"
 author: "Laboratorio de Datos - El Ateneo"
 date: "15/09/2022"
-output: rmdformats::robobook:
+output: 
+  rmdformats::robobook:
     self_contained: true
     thumbnails: true
     lightbox: false
@@ -49,16 +50,16 @@ base<-read.csv(file = paste0("../data/", clase, "/delitos_2019.csv"), encoding =
 Antes de ponernos a graficar, necesitamos entender la estructura de un gráfico, cómo se escribe:
 
 ```{r}
-mi_grafico<-ggplot(data, #llamamos a ggplot y definimos el df que vamos a graficar
-                   aes(x=variable_independiente, y=variable_dependiente))+ #definimos los datos que van a ir en cada eje
-  geom_point()+ #definimos la geometria del grafico
-  geom_line()+ #podemos agregar o combinar geometrias 
-  scale_y_continuous()+ #definimos las escalas de los ejes
-  scale_colour_brewer()+#definimos colores para las variables
-  theme()+ #definimos elementos esteticos del grafico (fondo, bordes, tamano de letras,etc)
-  facet_grid()+#podemos definir facetas (dividir en sub-graficos segun alguna variable)
-  coord_flip()+#podemos definir el sistema de coordenadas 
-  labs() #definimos titulos o nombre de los ejes
+# mi_grafico<-ggplot(data, #llamamos a ggplot y definimos el df que vamos a graficar
+#                    aes(x=variable_independiente, y=variable_dependiente))+ #definimos los datos que van a ir en cada eje
+#   geom_point()+ #definimos la geometria del grafico
+#   geom_line()+ #podemos agregar o combinar geometrias 
+#   scale_y_continuous()+ #definimos las escalas de los ejes
+#   scale_colour_brewer()+#definimos colores para las variables
+#   theme()+ #definimos elementos esteticos del grafico (fondo, bordes, tamano de letras,etc)
+#   facet_grid()+#podemos definir facetas (dividir en sub-graficos segun alguna variable)
+#   coord_flip()+#podemos definir el sistema de coordenadas 
+#   labs() #definimos titulos o nombre de los ejes
 
 ```
 
@@ -161,7 +162,7 @@ plot_delitos_por_tipo<-ggplot(base%>%
 plot_delitos_por_tipo
 ```
 
-6-Cambiemos el tamaño de los puntos
+6-a Cambiemos el tamaño de los puntos
 
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
@@ -170,6 +171,43 @@ plot_delitos_por_tipo<-ggplot(base%>%
   geom_point(size=0.5)
 plot_delitos_por_tipo
 ```
+
+6-b Cambiemos el tamaño de los puntos según una variable
+
+```{r}
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo")%>%
+                                mutate(tamano=case_when(
+                                  tipo_delito=="Homicidio"~2,
+                                  tipo_delito=="Robo (con violencia)"~.5,
+                                  tipo_delito=="Hurto (sin violencia)"~.5,
+                                  tipo_delito=="Lesiones"~1)),
+                              aes(x=long, 
+                                  y=lat, 
+                                  color=tipo_delito, 
+                                  shape=subtipo_delito,
+                                  size=tamano))+
+  geom_point()
+plot_delitos_por_tipo
+
+```
+
+6-c Cambiemos el tamaño de los puntos según una variable pero de otra forma
+
+```{r}
+
+plot_delitos_por_tipo<-ggplot(base%>%
+                                filter(barrio=="Palermo"),
+                              aes(x=long,
+                                  y=lat,
+                                  color=tipo_delito,
+                                  # shape=subtipo_delito,
+                                  size=ifelse(tipo_delito=="Homicidio", 2, .5)))+
+  geom_point()
+plot_delitos_por_tipo
+
+```
+
 
 7-Ahora cambiemos la transparencia de los puntos y agreguemos título, subtítulo y epígrafe 
 
@@ -201,9 +239,7 @@ plot_delitos_por_tipo<-ggplot(base%>%
 plot_delitos_por_tipo
 ```
 
-9-Cambiemos los colores de los puntos
-[https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
-https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html]
+9-Cambiemos los colores de los puntos. Se pueden usar librerías como las de [Brewer](https://r-graph-gallery.com/38-rcolorbrewers-palettes.html) o las de [Viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html), aunque también se puede hacer de forma manual como veremos más adelante.
 
 ```{r}
 plot_delitos_por_tipo<-ggplot(base%>%
@@ -410,8 +446,7 @@ ggsave(filename = "1 Cantidad de delitos por comuna.png",
 
 Todos estos gráficos podemos decir que son "estáticos"en contraposición a lo que vamos a hacer a continuación: un gráfico "dinámico". 
 
-Primero cargamos la libería
-[https://plotly.com/r/]
+Primero cargamos la libería [plotly](https://plotly.com/r/)
 
 ```{r}
 #install.packages("plotly")
@@ -427,8 +462,7 @@ ggplotly(plot_delitos_por_comuna, tooltip = c("tipo", "cantidad"))
 
 ## 7.2 YAPA 2: Highcharter()
 
-Otro paquete muy útil para generar gráficos dinámicos es Highcharter
-[https://www.highcharts.com/blog/tutorials/highcharts-for-r-users/]
+Otro paquete muy útil para generar gráficos dinámicos es [Highcharter](https://www.highcharts.com/blog/tutorials/highcharts-for-r-users/)
 
 ```{r}
 # install.packages("highcharter")
@@ -509,6 +543,38 @@ plot_crecimiento<-ggplot(base_comuna_fecha, aes(x=reorder(comuna,suma), suma, fi
   labs(title = "Cantidad de delitos")
 plot_crecimiento
 ```
+
+Para guardar estos plots, tenemos que instalar una biblioteca de códecs llamada [FFMpeg](https://ffmpeg.org/), creada bajo licencia de software libre. Lleva un poco de trabajo la instalación pero vale la pena seguir este [tutorial](https://www.youtube.com/watch?v=r1AtmY-RMyQ). 
+
+
+```{r}
+
+plot_delitos_mes_animate<-animate(plot_delitos_mes_animate,
+                                  fps = 10,
+                                  end_pause = T,
+                                  duration = 15,
+                                  renderer = ffmpeg_renderer(format = ".mp4"))
+
+anim_save(filename = "evolucion_anual_delitos_2019.mp4",
+          animation = plot_delitos_mes_animate,
+          path = path_plots)
+
+```
+
+```{r}
+
+plot_crecimiento<-animate(plot_crecimiento,
+                          fps = 10,
+                          end_pause = T,
+                          duration = 15,
+                          renderer = ffmpeg_renderer(format = ".mp4"))
+
+anim_save(filename = "crecimiento_anual_delitos_2019.mp4",
+          animation = plot_crecimiento,
+          path = path_plots)
+
+```
+
 
 ## 8 Práctica
 
