@@ -57,5 +57,5 @@ Para armar estas clases nos basamos en los siguientes repos, notebooks y fuentes
 
 - [R para principiantes](https://bookdown.org/jboscomendoza/r-principiantes4/listas.html)
 - [Ciencia de Datos para gente sociable](https://bitsandbricks.github.io/ciencia_de_datos_gente_sociable/)
-
+- [Leaflet para R](https://rstudio.github.io/leaflet/)
 
