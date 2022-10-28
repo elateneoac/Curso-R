@@ -549,3 +549,15 @@ ap_top_terms %>%
   scale_y_reordered() +
   theme_minimal()
 
+# Práctica ####
+
+# 1 Buscar las palabras más usadas por las cuentas de twitter de CFK, MM, HRL y AK
+
+# 2 Buscar las palabras más representativas de las cuentas de twitter de CFK, MM, HRL y AK
+
+# 3 Qué sentimiento prevalece en los tweets de CFK? Y en los de MM?
+
+# 4 Comparar los tweets de los polítios con las noticias de los diarios
+
+# 5 Es posible detectar 5 temas en los tweets de los políticos?
+
