@@ -1,0 +1,218 @@
+---
+title: "Introducción al análisis de datos con R: Clase 8"
+author: "Laboratorio de Datos - El Ateneo"
+date: "19/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción al uso de Rmarkdown
+
+Ventajas de usar Rmarkdown (Rmd): 
+
+ - Permite generar informes a partir de R; 
+ - Visualizar gráficos, tablas y código en un mismo archivo; 
+ - Optar por distintos tipos de outputs: 
+      - `.pdf`
+      - `.doc`
+      - `.hmtl`
+
+## Cargamos librerías
+
+Se requieren dos paquetes básicos: [knitr](https://cran.r-project.org/web/packages/knitr/index.html) y [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html).
+
+```{r}
+#install.packages("rmarkdown")
+library(rmarkdown)
+#install.packages("knitr")
+library(knitr)
+library(tidyverse)
+```
+
+**Los archivos se abren en Rstudio y se ejecutan con .knit**     
+
+
+Es importante tener en cuenta que un documento en formato .Rmd (o de R Markdown) se integra por 3 partes:
+
+    - 1) El YAML o los metadatos y características de formato del documento general,
+    - 2) Las partes de código o chunks que contienen los códigos en lenguaje de R, y
+    - 3) El texto o cuerpo del informe, que se redacta con la sintaxis de Markdown.
+    
+
+## YAML
+
+La cabecera o YAML aparece al principio del documento entre dos líneas ---
+SU característica general final consiste en **definir el formato de salida** en que será renderizado el resto de los elementos del documento R Markdown.
+   
+    ---
+    title: "Escribe tu titulo"
+    subtitle: "este es mi primer borrador"
+    author: "Escribe tu nombre"
+    date: "Escribe la fecha"
+    date: "Sys.Date()"
+    output:
+      pdf_document: default
+      html_document: default
+      word_document: default
+    ---
+
+
+###  Elementos básicos del YAML para el formato '.html'.
+
+#### Tabla de contenidos `[toc:]`
+
+Ppara ello se utiliza el argumento toc: TRUE después de especificar que el documento de salida será en formato .html. 
+
+Además, si se desea que el sistema asigne una numeración automática a cada una de las secciones (que fueron definidas mediante el símbolo `#` de la sintaxis de Markdown), se utiliza el argumento: number_sections: TRUE, de la siguiente manera:
+
+    ---
+    title: "Introducción al análisis de datos con R: Clase 8"
+    author: "Laboratorio de Datos - El Ateneo"
+    date: "19/11/2022"
+    output:
+      html_document:
+        toc: TRUE
+        number_sections: TRUE
+    ---
+    
+También se puede indicar si de desea que el índice elaborado previamente se ubique en un recuadro “flotante” dentro de la página y así se encuentre siempre a la vista. 
+
+Para ello se utiliza el comando `[toc_float: TRUE]`:
+
+    ---
+    title: "Introducción al análisis de datos con R: Clase 8"
+    author: "Laboratorio de Datos - El Ateneo"
+    date: "19/11/2022"
+    output:
+      html_document:
+        toc: TRUE
+        number_sections: TRUE
+        toc_float: TRUE
+    ---
+    
+#### Tema
+
+Otra característica que puede ser modificada consiste en el tema o tipo de plantilla visual en que se muestra el contenido. [Aquí](https://www.datadreaming.org/post/r-markdown-theme-gallery/) podrán encontrar distintos temas a aplicar. 
+
+Para cambiar de tema se utiliza el comando `[theme: journal]`, por ejemplo. 
+
+    ---
+    title: "Introducción al análisis de datos con R: Clase 8"
+    author: "Laboratorio de Datos - El Ateneo"
+    date: "19/11/2022"
+    output:
+      html_document:
+        toc: TRUE
+        number_sections: TRUE
+        toc_float: TRUE
+        theme: journal
+    ---
+
+También existen librerías que pueden descargar para customizar el tema del rmarkdown. Una es [rmdformats](https://github.com/juba/rmdformats). 
+
+#### Código 
+
+Se puede setear el ocultamiento de los resultados de los trozos de códigos o chunks, para ello se utiliza el comando `code_folding:` y sus opciones de respuesta posible son: `show` o `hide`.  Con la opción `code_folding: hide`, automáticamente todos los códigos se ocultarán a la vista del lector pero podrán ser desplegados.
+
+    ---
+    title: "Introducción al análisis de datos con R: Clase 8"
+    author: "Laboratorio de Datos - El Ateneo"
+    date: "19/11/2022"
+    output:
+      html_document:
+        toc: TRUE
+        number_sections: TRUE
+        toc_float: TRUE
+        theme: journal
+        code_folding: hide
+    ---
+
+Se puede habilitar la opción para que el código fuente de Rmd sea descargado, esto se especifica desde el YAML con: `code_download: TRUE`:
+
+    ---
+    title: "Introducción al análisis de datos con R: Clase 8"
+    author: "Laboratorio de Datos - El Ateneo"
+    date: "19/11/2022"
+    output:
+      html_document:
+        toc: TRUE
+        number_sections: TRUE
+        toc_float: TRUE
+        theme: journal
+        code_folding: hide
+        code_download: TRUE
+    ---
+
+[Aquí](https://rpubs.com/gustavomtzv/874870) encontrarán más información acerca de las posibles configuraciones del encabezado. 
+
+## Chunks
+
+Generamos un chunk (Ctrl + alt + i) y cargamos datos:
+
+La base de datos `CARS2004` del paquete `PASWR2` recoge el número de coches por 1000 habitantes (`cars`), el número total de accidentes con víctimas mortales (`deaths`) y la población/1000 (`population`) para los 25 miembros de la Unión Europea en el año 2004.
+
+```{r}
+#install.packages("PASWR2")
+library(PASWR2)
+df <- CARS2004
+
+summary(df)
+
+```
+
+Podemos usar paquetes para modificar las salidas, por ejemplo [`kableExtra`](https://rpubs.com/Juve_Campos/tablasRMarkdown):
+
+```{r}
+#install.packages("kableExtra")
+library(kableExtra)
+
+head(df) %>%
+  kbl() %>%
+  kable_styling()
+
+```
+Se pueden incluir visualizaciones: 
+
+```{r, echo= FALSE}
+eda(CARS2004$deaths)
+```
+
+En el chunk anterior customizamos de manera particular la salida de ese fragmento de código con `echo = FALSE`. La salida del código tiene múltiples opciones de configuración, [aquí](https://rpubs.com/gustavomtzv/867466) se mencionan algunas. 
+
+## Formato HTML
+
+Se puede customizar el tipo de formato en que se ve el texto que incluímos por fuera de los chunks_
+
+    Negrita: Escribir el texto como **Negrita** o __Negrita__
+
+    Cursiva: Escribir el texto como *Cursiva* o _Cursiva_
+    
+    Tachado: ~~ejemplo~~
+
+    Cabecera de secciones:
+    
+    # Título 1
+    ## Título 2
+    ### Título 3
+
+# Título 1
+## Título 2
+### Título 3
+
+# Publicación
+
+Los informes realizados en `.Rmd` con formato en `.html` se pueden publicar en [**Rpubs**](https://rpubs.com/). [Aquí](https://rpubs.com/amaurandi/rpubs-info3) encontrarán el paso a paso.
+
+# Más material 
+
+Existe mucha información acerca de los **tres** elementos que conforman al `.Rmd`. Les dejamos algunos recursos:
+
+ - [Reference Guide](http://www.unavarra.es/personal/tgoicoa/ESTADISTICA_RMarkdown_tomas/basicRmarkdown/rmarkdown_reference.pdf).
+ - [Rmarkdown - Rstudio](https://rmarkdown.rstudio.com/). 
+ - [Rmarkdown Gallery](https://rmarkdown.rstudio.com/gallery.html)
+ - [Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).
+
+
