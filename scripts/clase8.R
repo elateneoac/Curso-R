@@ -27,14 +27,14 @@ shinyApp(ui, server)
 # UI: Estructura básica ####
 
 ui <- fluidPage(
-  titlePanel("Título"),
+  titlePanel("Titulo"),
   sidebarLayout(position = "left", 
                 sidebarPanel("panel lateral"),
                 mainPanel("panel principal") ) )
 
 server <- function(input, output) {}
 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
 
 
 ##  Caso 1: sidebarLayout() ####
