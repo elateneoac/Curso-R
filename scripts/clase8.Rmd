@@ -52,7 +52,7 @@ SU característica general final consiste en **definir el formato de salida** en
     subtitle: "este es mi primer borrador"
     author: "Escribe tu nombre"
     date: "Escribe la fecha"
-    date: "Sys.Date()"
+    date: "`r Sys.Date()`"
     output:
       pdf_document: default
       html_document: default
